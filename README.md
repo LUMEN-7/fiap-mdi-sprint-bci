@@ -55,28 +55,27 @@ Serviços externos
 
 ## 🛠️ Tecnologias
 
-### Padrão de Badges
-[![HTML](https://img.shields.io/badge/HTML-orange?style=for-the-badge&logo=html5&logoColor=orange&labelColor=black)](https://www.google.com/search?q=html)
-[![CSS](https://img.shields.io/badge/CSS-61DBFB?style=for-the-badge&logo=css3&logoColor=white&labelColor=black)](https://www.google.com/search?q=css)
-[![JavaScript](https://img.shields.io/badge/JavaScript-yellow?style=for-the-badge&logo=javascript&logoColor=yellow&labelColor=black)](https://www.google.com/search?q=javascript)
-[![Node.js](https://img.shields.io/badge/Node.js-green?style=for-the-badge&logo=node.js&labelColor=black)](https://www.google.com/search?q=Node.js)
-[![React](https://img.shields.io/badge/React-blue?style=for-the-badge&logo=react&labelColor=black)](https://www.google.com/search?q=React)
-[![Vite](https://img.shields.io/badge/Vite-purple?style=for-the-badge&logo=vite&labelColor=black)](https://www.google.com/search?q=Vite)
-
 ### Frontend
-- React / React Native
-- TypeScript
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=F7DF1E&labelColor=000000)](https://www.google.com/search?q=javascript)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=3178C6&labelColor=000000)](https://www.google.com/search?q=typescript)
+[![React Native](https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=61DAFB&labelColor=000000)](https://www.google.com/search?q=react+native)
+[![Expo](https://img.shields.io/badge/Expo-ffffff?style=for-the-badge&logo=expo&logoColor=FFFFFF&labelColor=000000)](https://www.google.com/search?q=expo)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=339933&labelColor=000000)](https://www.google.com/search?q=node+js)
 
 ### Backend
-- Node.js
-- Express
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=3776AB&labelColor=000000)](https://www.google.com/search?q=python)
+[![C#](https://img.shields.io/badge/C%23-8A2BE2?style=for-the-badge&logo=c&logoColor=8A2BE2&labelColor=000000)](https://www.google.com/search?q=c#)
 
 ### Banco de Dados
-- MongoDB / PostgreSQL
+[![SQL Server](https://img.shields.io/badge/SQL-FF92C2?style=for-the-badge&logo=databricks&logoColor=FFFFFF&labelColor=000000)](https://www.google.com/search?q=sql_server)
 
-### Outros
-- Git & GitHub
-- Figma
+
+### Versionamento
+[![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=F05032&labelColor=000000)](https://www.google.com/search?q=git)
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=FFFFFF&labelColor=000000)](https://www.google.com/search?q=github)
+
+### Design
+[![Figma](https://img.shields.io/badge/Figma-8F3985?style=for-the-badge&logo=figma&logoColor=8F3985&labelColor=000000)](https://www.figma.com/design/IUr7lhd6lPTnnz91kwbpo9/Ford?node-id=0-1&t=MqtJGy1yJz9UpkKw-1)
 
 ---
 
