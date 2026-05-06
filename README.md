@@ -3,11 +3,10 @@
 </p>
 
 
-# Nome do Projeto
+# BCI - Beyond Compare Intelligence
 
 <p align="start">
-  <b>Descrição clara, direta e com valor.</b><br/>
-  Ex: Plataforma inteligente de comparação de veículos com análise de dados e recomendações automatizadas.
+<b>Plataforma de inteligência competitiva que analisa veículos concorrentes, identifica diferenciais estratégicos e apoia o time na criação de campanhas mais assertivas.</b>
 </p>
 
 ---
