@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: COLORS.lightNeutral,
-		paddingTop: 100,
+		paddingTop: 70,
 		overflow: 'hidden',
 	},
 

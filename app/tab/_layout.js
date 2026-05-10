@@ -31,7 +31,7 @@ export default function ScreenLayout() {
         options={{
           title: 'HOME',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />

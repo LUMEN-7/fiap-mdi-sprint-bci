@@ -30,7 +30,7 @@ export default function ProfileScreen() {
 			title: 'Redefinir Senha',
 			subtitle: 'Altere sua senha de acesso',
 			icon: 'lock-closed-outline',
-			route: '/saved',
+			route: '/screen/password',
 		},
 	];
 

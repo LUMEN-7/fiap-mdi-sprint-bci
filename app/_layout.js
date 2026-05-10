@@ -167,21 +167,37 @@ function AuthProvider({ children }) {
 		}
 	};
 
-	const updateProfile = async ({ name, email, photo }) => {
+	const updateProfile = async ({
+		name,
+		email,
+		photo,
+		currentPassword,
+		newPassword,
+	}) => {
 		if (!currentUser?.email) {
 			throw new Error('Nenhum usuario autenticado.');
 		}
 
-		const formattedEmail = normalizeEmail(email);
+		const nextName = String(name ?? currentUser.name ?? '').trim();
+		const nextEmail = normalizeEmail(email ?? currentUser.email ?? '');
+		const nextPhoto = photo === undefined ? currentUser.photo || null : photo || null;
 
-		if (!formattedEmail) {
+		if (!nextEmail) {
 			throw new Error('E-mail invalido.');
 		}
 
 		const users = await loadUsers();
+		const existingUser = users.find(
+			(user) => user.email === currentUser.email
+		);
+
+		if (!existingUser) {
+			throw new Error('Usuario nao encontrado.');
+		}
+
 		const emailInUseByAnotherUser = users.some(
 			(user) =>
-				user.email === formattedEmail &&
+				user.email === nextEmail &&
 				user.email !== currentUser.email
 		);
 
@@ -189,11 +205,26 @@ function AuthProvider({ children }) {
 			throw new Error('Este e-mail ja esta em uso.');
 		}
 
+		const wantsPasswordChange = String(newPassword || '').trim().length > 0;
+
+		if (wantsPasswordChange) {
+			if (existingUser.password !== String(currentPassword || '')) {
+				throw new Error('Senha atual incorreta.');
+			}
+
+			if (String(newPassword).trim().length < 6) {
+				throw new Error('A nova senha precisa ter no minimo 6 caracteres.');
+			}
+		}
+
 		const updatedUser = {
 			...currentUser,
-			name: String(name || '').trim(),
-			email: formattedEmail,
-			photo: photo || null,
+			name: nextName,
+			email: nextEmail,
+			photo: nextPhoto,
+			password: wantsPasswordChange
+				? String(newPassword).trim()
+				: existingUser.password,
 		};
 
 		const updatedUsers = users.map((user) =>
