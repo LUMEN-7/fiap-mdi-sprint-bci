@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import {
 	View,
@@ -14,12 +14,24 @@ import {
 	MaterialCommunityIcons,
 } from '@expo/vector-icons';
 
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { COLORS, FONT } from '../../style/theme';
+import { getCarModel, getComparisonSummary } from '../data/carModels';
 
 export default function CompareDetailScreen() {
 	const router = useRouter();
+
+	const {
+		firstCarId,
+		firstCarBrand,
+		firstCarName,
+		firstCarImage,
+		secondCarId,
+		secondCarBrand,
+		secondCarName,
+		secondCarImage,
+	} = useLocalSearchParams();
 
 	const [expandedSection, setExpandedSection] =
 		useState('performance');
@@ -30,37 +42,52 @@ export default function CompareDetailScreen() {
 		);
 	}
 
-	const firstCar = {
-		name: 'Mustang',
-		image:
-			'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/mustang.png',
+	const firstCar = useMemo(() => {
+		const car = getCarModel(firstCarId || '1');
 
-		stats: {
-			potencia: '315 cv',
-			torque: '475 Nm',
-			aceleracao: '4.3s',
-			consumo: '11 km/L',
-			seguranca: 'Ford CoPilot360',
-			tecnologia: 'SYNC 4 + painel digital',
-			conforto: 'Interior premium esportivo',
-		},
-	};
+		return {
+			...car,
+			brand: String(firstCarBrand || car.brand),
+			name: String(firstCarName || car.name),
+			image: String(firstCarImage || car.image),
+		};
+	}, [firstCarBrand, firstCarId, firstCarImage, firstCarName]);
 
-	const secondCar = {
-		name: 'Bronco',
-		image:
-			'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/bronco1.png',
+	const secondCar = useMemo(() => {
+		const car = getCarModel(secondCarId || '2');
 
-		stats: {
-			potencia: '330 cv',
-			torque: '563 Nm',
-			aceleracao: '5.1s',
-			consumo: '9 km/L',
-			seguranca: 'Assistência Off-Road',
-			tecnologia: 'Tela SYNC integrada',
-			conforto: 'Suspensão reforçada',
-		},
-	};
+		return {
+			...car,
+			brand: String(secondCarBrand || car.brand),
+			name: String(secondCarName || car.name),
+			image: String(secondCarImage || car.image),
+		};
+	}, [secondCarBrand, secondCarId, secondCarImage, secondCarName]);
+
+	const comparisonSummary = getComparisonSummary(firstCar.id, secondCar.id);
+
+	const sections = firstCar.sections.map((section) => {
+		const matchingSection =
+			secondCar.sections.find((item) => item.id === section.id) || {
+				items: [],
+			};
+
+		return {
+			...section,
+			otherItems: matchingSection.items,
+		};
+	});
+
+	function getCarAdvantage(section) {
+		const firstCount = section.items.length;
+		const secondCount = section.otherItems.length;
+		const diff = firstCount - secondCount;
+
+		if (diff > 1) return { first: true, second: false, tied: false };
+		if (diff < -1) return { first: false, second: true, tied: false };
+
+		return { first: false, second: false, tied: true };
+	}
 
 	return (
 		<ScrollView
@@ -89,13 +116,10 @@ export default function CompareDetailScreen() {
 				</TouchableOpacity>
 			</View>
 
-			<Text style={styles.title}>
-				Comparação detalhada
-			</Text>
+			<Text style={styles.title}>Comparação detalhada</Text>
 
 			<Text style={styles.subtitle}>
-				Visualize diferenças de desempenho,
-				tecnologia e eficiência entre os modelos.
+				Visualize diferenças de desempenho, tecnologia e eficiência entre os modelos.
 			</Text>
 
 			<View style={styles.hero}>
@@ -105,9 +129,7 @@ export default function CompareDetailScreen() {
 						style={styles.carImage}
 					/>
 
-					<Text style={styles.carName}>
-						{firstCar.name}
-					</Text>
+					<Text style={styles.carName}>{firstCar.name}</Text>
 				</View>
 
 				<View style={styles.vsCircle}>
@@ -120,9 +142,7 @@ export default function CompareDetailScreen() {
 						style={styles.carImage}
 					/>
 
-					<Text style={styles.carName}>
-						{secondCar.name}
-					</Text>
+					<Text style={styles.carName}>{secondCar.name}</Text>
 				</View>
 			</View>
 
@@ -134,285 +154,111 @@ export default function CompareDetailScreen() {
 						color={COLORS.secondary}
 					/>
 
-					<Text style={styles.summaryTitle}>
-						Resumo inteligente
-					</Text>
+					<Text style={styles.summaryTitle}>Resumo inteligente</Text>
 				</View>
 
-				<Text style={styles.summaryText}>
-					O Bronco apresenta maior torque e foco
-					em desempenho off-road, enquanto o
-					Mustang entrega aceleração superior e
-					uma experiência mais esportiva.
-				</Text>
+				<Text style={styles.summaryText}>{comparisonSummary}</Text>
 			</View>
 
-			<View style={styles.section}>
-				<TouchableOpacity
-					style={styles.sectionHeader}
-					onPress={() => toggleSection('performance')}
-				>
-					<Text style={styles.sectionTitle}>
-						Performance
-					</Text>
+			{sections.map((section) => {
+				const isOpen = expandedSection === section.id;
+				const advantage = getCarAdvantage(section);
 
-					<Ionicons
-						name={
-							expandedSection === 'performance'
-								? 'chevron-up-outline'
-								: 'chevron-down-outline'
-						}
-						size={22}
-						color={COLORS.primary}
-					/>
-				</TouchableOpacity>
-
-				{expandedSection === 'performance' ? (
-					<View style={styles.compareContent}>
-						<View style={styles.row}>
-							<Text style={styles.metric}>
-								Potência
+				return (
+					<View style={styles.section} key={section.id}>
+						<TouchableOpacity
+							style={styles.sectionHeader}
+							onPress={() => toggleSection(section.id)}
+						>
+							<Text style={styles.sectionTitle}>
+								{section.title}
 							</Text>
 
-							<View style={styles.valueRow}>
-								<View style={styles.valueCard}>
-									<Text style={styles.valueText}>
-										{firstCar.stats.potencia}
-									</Text>
+							<Ionicons
+								name={
+									isOpen
+										? 'chevron-up-outline'
+										: 'chevron-down-outline'
+								}
+								size={22}
+								color={COLORS.primary}
+							/>
+						</TouchableOpacity>
+
+						{isOpen ? (
+							<View style={styles.dualCards}>
+								<View
+									style={[
+										styles.infoCard,
+										advantage.first && styles.advantageCard,
+										advantage.first && styles.firstCardAdvantage,
+									]}
+								>
+									<View style={styles.cardHeader}>
+										<Text style={styles.infoTitle}>
+											{firstCar.name}
+										</Text>
+
+										{advantage.first ? (
+											<View style={styles.badgeWinner}>
+												<MaterialCommunityIcons
+													name="crown"
+													size={14}
+													color={COLORS.lightNeutral}
+												/>
+											</View>
+										) : null}
+									</View>
+
+									{section.items.map((item) => (
+										<Text
+											key={`${section.id}-left-${item}`}
+											style={styles.infoText}
+										>
+											- {item}
+										</Text>
+									))}
 								</View>
 
-								<View style={styles.valueCard}>
-									<Text style={styles.valueText}>
-										{secondCar.stats.potencia}
-									</Text>
+								<View
+									style={[
+										styles.infoCard,
+										advantage.second && styles.advantageCard,
+										advantage.second && styles.secondCardAdvantage,
+									]}
+								>
+									<View style={styles.cardHeader}>
+										<Text style={styles.infoTitle}>
+											{secondCar.name}
+										</Text>
+
+										{advantage.second ? (
+											<View style={styles.badgeWinner}>
+												<MaterialCommunityIcons
+													name="crown"
+													size={14}
+													color={COLORS.lightNeutral}
+												/>
+											</View>
+										) : null}
+									</View>
+
+									{section.otherItems.map((item) => (
+										<Text
+											key={`${section.id}-right-${item}`}
+											style={styles.infoText}
+										>
+											- {item}
+										</Text>
+									))}
 								</View>
 							</View>
-						</View>
-
-						<View style={styles.row}>
-							<Text style={styles.metric}>
-								Torque
-							</Text>
-
-							<View style={styles.valueRow}>
-								<View style={styles.valueCard}>
-									<Text style={styles.valueText}>
-										{firstCar.stats.torque}
-									</Text>
-								</View>
-
-								<View style={styles.valueCard}>
-									<Text style={styles.valueText}>
-										{secondCar.stats.torque}
-									</Text>
-								</View>
-							</View>
-						</View>
-
-						<View style={styles.row}>
-							<Text style={styles.metric}>
-								Aceleração
-							</Text>
-
-							<View style={styles.valueRow}>
-								<View style={styles.valueCard}>
-									<Text style={styles.valueText}>
-										{firstCar.stats.aceleracao}
-									</Text>
-								</View>
-
-								<View style={styles.valueCard}>
-									<Text style={styles.valueText}>
-										{secondCar.stats.aceleracao}
-									</Text>
-								</View>
-							</View>
-						</View>
+						) : null}
 					</View>
-				) : null}
-			</View>
+				);
+			})}
 
-			<View style={styles.section}>
-				<TouchableOpacity
-					style={styles.sectionHeader}
-					onPress={() => toggleSection('consumo')}
-				>
-					<Text style={styles.sectionTitle}>
-						Consumo
-					</Text>
-
-					<Ionicons
-						name={
-							expandedSection === 'consumo'
-								? 'chevron-up-outline'
-								: 'chevron-down-outline'
-						}
-						size={22}
-						color={COLORS.primary}
-					/>
-				</TouchableOpacity>
-
-				{expandedSection === 'consumo' ? (
-					<View style={styles.compareContent}>
-						<View style={styles.row}>
-							<Text style={styles.metric}>
-								Eficiência
-							</Text>
-
-							<View style={styles.valueRow}>
-								<View style={styles.valueCard}>
-									<Text style={styles.valueText}>
-										{firstCar.stats.consumo}
-									</Text>
-								</View>
-
-								<View style={styles.valueCard}>
-									<Text style={styles.valueText}>
-										{secondCar.stats.consumo}
-									</Text>
-								</View>
-							</View>
-						</View>
-					</View>
-				) : null}
-			</View>
-
-			<View style={styles.section}>
-				<TouchableOpacity
-					style={styles.sectionHeader}
-					onPress={() => toggleSection('seguranca')}
-				>
-					<Text style={styles.sectionTitle}>
-						Segurança
-					</Text>
-
-					<Ionicons
-						name={
-							expandedSection === 'seguranca'
-								? 'chevron-up-outline'
-								: 'chevron-down-outline'
-						}
-						size={22}
-						color={COLORS.primary}
-					/>
-				</TouchableOpacity>
-
-				{expandedSection === 'seguranca' ? (
-					<View style={styles.dualCards}>
-						<View style={styles.infoCard}>
-							<Text style={styles.infoTitle}>
-								{firstCar.name}
-							</Text>
-
-							<Text style={styles.infoText}>
-								{firstCar.stats.seguranca}
-							</Text>
-						</View>
-
-						<View style={styles.infoCard}>
-							<Text style={styles.infoTitle}>
-								{secondCar.name}
-							</Text>
-
-							<Text style={styles.infoText}>
-								{secondCar.stats.seguranca}
-							</Text>
-						</View>
-					</View>
-				) : null}
-			</View>
-
-			<View style={styles.section}>
-				<TouchableOpacity
-					style={styles.sectionHeader}
-					onPress={() => toggleSection('tecnologia')}
-				>
-					<Text style={styles.sectionTitle}>
-						Tecnologia
-					</Text>
-
-					<Ionicons
-						name={
-							expandedSection === 'tecnologia'
-								? 'chevron-up-outline'
-								: 'chevron-down-outline'
-						}
-						size={22}
-						color={COLORS.primary}
-					/>
-				</TouchableOpacity>
-
-				{expandedSection === 'tecnologia' ? (
-					<View style={styles.dualCards}>
-						<View style={styles.infoCard}>
-							<Text style={styles.infoTitle}>
-								{firstCar.name}
-							</Text>
-
-							<Text style={styles.infoText}>
-								{firstCar.stats.tecnologia}
-							</Text>
-						</View>
-
-						<View style={styles.infoCard}>
-							<Text style={styles.infoTitle}>
-								{secondCar.name}
-							</Text>
-
-							<Text style={styles.infoText}>
-								{secondCar.stats.tecnologia}
-							</Text>
-						</View>
-					</View>
-				) : null}
-			</View>
-
-			<View style={styles.section}>
-				<TouchableOpacity
-					style={styles.sectionHeader}
-					onPress={() => toggleSection('conforto')}
-				>
-					<Text style={styles.sectionTitle}>
-						Conforto
-					</Text>
-
-					<Ionicons
-						name={
-							expandedSection === 'conforto'
-								? 'chevron-up-outline'
-								: 'chevron-down-outline'
-						}
-						size={22}
-						color={COLORS.primary}
-					/>
-				</TouchableOpacity>
-
-				{expandedSection === 'conforto' ? (
-					<View style={styles.dualCards}>
-						<View style={styles.infoCard}>
-							<Text style={styles.infoTitle}>
-								{firstCar.name}
-							</Text>
-
-							<Text style={styles.infoText}>
-								{firstCar.stats.conforto}
-							</Text>
-						</View>
-
-						<View style={styles.infoCard}>
-							<Text style={styles.infoTitle}>
-								{secondCar.name}
-							</Text>
-
-							<Text style={styles.infoText}>
-								{secondCar.stats.conforto}
-							</Text>
-						</View>
-					</View>
-				) : null}
-			</View>
-
-			<TouchableOpacity style={styles.compareButton}>
+			{/* <TouchableOpacity style={styles.compareButton}>
 				<MaterialCommunityIcons
 					name="source-branch-sync"
 					size={20}
@@ -422,7 +268,7 @@ export default function CompareDetailScreen() {
 				<Text style={styles.compareButtonText}>
 					Gerar relatório
 				</Text>
-			</TouchableOpacity>
+			</TouchableOpacity> */}
 		</ScrollView>
 	);
 }
@@ -560,43 +406,6 @@ const styles = StyleSheet.create({
 		color: COLORS.primary,
 	},
 
-	compareContent: {
-		marginTop: 18,
-		gap: 18,
-	},
-
-	row: {
-		gap: 12,
-	},
-
-	metric: {
-		fontFamily: FONT.bodyBold,
-		color: COLORS.secondary,
-		textTransform: 'uppercase',
-		fontSize: 12,
-	},
-
-	valueRow: {
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-	},
-
-	valueCard: {
-		width: '48%',
-		height: 58,
-		borderRadius: 16,
-		backgroundColor: '#E8E8E8',
-		alignItems: 'center',
-		justifyContent: 'center',
-	},
-
-	valueText: {
-		fontFamily: FONT.bodyBold,
-		color: COLORS.primary,
-		fontSize: 14,
-		textTransform: 'uppercase',
-	},
-
 	dualCards: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
@@ -609,6 +418,36 @@ const styles = StyleSheet.create({
 		borderRadius: 18,
 		padding: 18,
 		minHeight: 130,
+		borderLeftWidth: 3,
+		borderLeftColor: '#ECECEC',
+	},
+
+	advantageCard: {
+		backgroundColor: 'rgba(255, 193, 7, 0.08)',
+	},
+
+	firstCardAdvantage: {
+		borderLeftColor: COLORS.secondary,
+	},
+
+	secondCardAdvantage: {
+		borderLeftColor: COLORS.secondary,
+	},
+
+	cardHeader: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: 12,
+	},
+
+	badgeWinner: {
+		backgroundColor: COLORS.secondary,
+		borderRadius: 999,
+		width: 24,
+		height: 24,
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 
 	infoTitle: {
