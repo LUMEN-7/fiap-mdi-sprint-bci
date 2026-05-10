@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 import { COLORS, FONT } from '../../style/theme';
+import { useAuth } from '../_layout';
 
 const { width, height } = Dimensions.get('window');
 
@@ -60,6 +61,7 @@ const cars = [
 
 export default function Home() {
 	const router = useRouter();
+	const { currentUser } = useAuth();
 
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [open, setOpen] = useState(false);
@@ -75,6 +77,21 @@ export default function Home() {
 	}, []);
 
 	const currentCar = cars[currentIndex];
+	const displayName = currentUser?.name?.trim() || 'Usuario';
+
+	function getGreetingByHour() {
+		const hour = new Date().getHours();
+
+		if (hour < 12) {
+			return 'Bom dia';
+		}
+
+		if (hour < 18) {
+			return 'Boa tarde';
+		}
+
+		return 'Boa noite';
+	}
 
 	const actions = [
 		{
@@ -102,7 +119,9 @@ export default function Home() {
 	return (
 		<View style={styles.container}>
 			<View style={styles.header}>
-				<Text style={styles.greeting}>Olá User</Text>
+				<Text style={styles.greeting}>
+					{getGreetingByHour()}, {displayName}
+				</Text>
 
 				<Text style={styles.subtitle}>
 					Built Beyond Comparison é mais do que um conceito, é o compromisso de transformar inovação, estratégia e criatividade em experiências que mantêm a Ford sempre além de qualquer comparação. E você, está pronto para levar a Ford além da comparação?

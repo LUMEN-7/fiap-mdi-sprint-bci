@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import {
 	View,
 	Text,
@@ -11,6 +12,7 @@ import {
 
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+
 import { COLORS, FONT } from '../../style/theme';
 
 const cars = [
@@ -46,30 +48,136 @@ const cars = [
 	},
 ];
 
+const lastSeenCars = [cars[0], cars[1], cars[2]];
+
+function normalizeText(text) {
+	return text
+		.toLowerCase()
+		.trim()
+		.normalize('NFD')
+		.replace(/[\u0300-\u036f]/g, '');
+}
+
+function searchCars(searchText) {
+	const normalizedSearch = normalizeText(searchText);
+
+	if (!normalizedSearch) {
+		return [];
+	}
+
+	const searchWords = normalizedSearch.split(/\s+/);
+
+	return cars.filter((car) => {
+		const searchableText = normalizeText(
+			`${car.brand} ${car.name}`
+		);
+
+		const searchableWords =
+			searchableText.split(/\s+/);
+
+		return searchWords.every((word) =>
+			searchableWords.some(
+				(carWord) => carWord === word
+			)
+		);
+	});
+}
+
 export default function SearchScreen() {
 	const router = useRouter();
+
 	const [search, setSearch] = useState('');
 	const [favorites, setFavorites] = useState([]);
 
-	const filteredCars = cars.filter((car) =>
-		car.name.toLowerCase().includes(search.toLowerCase())
-	);
+	const hasSearch = search.trim().length > 0;
+	const filteredCars = searchCars(search);
+
+	const dataToShow = hasSearch
+		? filteredCars
+		: lastSeenCars;
 
 	function toggleFavorite(id) {
 		if (favorites.includes(id)) {
-			setFavorites(favorites.filter((item) => item !== id));
-		} else {
-			setFavorites([...favorites, id]);
+			setFavorites(
+				favorites.filter((item) => item !== id)
+			);
+
+			return;
 		}
+
+		setFavorites([...favorites, id]);
+	}
+
+	function goToInformation(car) {
+		router.push({
+			pathname: '/screen/information',
+			params: {
+				id: car.id,
+				brand: car.brand,
+				name: car.name,
+				image: car.image,
+			},
+		});
+	}
+	function renderCarCard({ item }) {
+		return (
+			<View style={styles.card}>
+				<View style={styles.cardHeader}>
+					<Text style={styles.brand}>
+						{item.brand}
+					</Text>
+
+					<TouchableOpacity
+						onPress={() =>
+							toggleFavorite(item.id)
+						}
+					>
+						<Ionicons
+							name={
+								favorites.includes(item.id)
+									? 'star'
+									: 'star-outline'
+							}
+							size={18}
+							color={COLORS.primary}
+						/>
+					</TouchableOpacity>
+				</View>
+
+				<Image
+					source={{ uri: item.image }}
+					style={styles.carImage}
+				/>
+
+				<Text style={styles.carName}>
+					{item.name}
+				</Text>
+
+				<TouchableOpacity
+					style={styles.button}
+					onPress={() =>
+						goToInformation(item)
+					}
+				>
+					<Text style={styles.buttonText}>
+						Saiba mais
+					</Text>
+				</TouchableOpacity>
+			</View>
+		);
 	}
 
 	return (
 		<View style={styles.safeArea}>
 			<View style={styles.container}>
-				<Text style={styles.title}>Encontre o modelo</Text>
+				<Text style={styles.title}>
+					Encontre o modelo
+				</Text>
 
 				<Text style={styles.subtitle}>
-					Pesquise modelos, versões e características para comparar diferenciais com mais facilidade.
+					Pesquise pela marca ou modelo
+					para comparar diferenciais
+					com mais facilidade.
 				</Text>
 
 				<View style={styles.searchBox}>
@@ -81,14 +189,17 @@ export default function SearchScreen() {
 
 					<TextInput
 						style={styles.input}
-						placeholder="Pesquisar modelo"
+						placeholder="Ex: Ford Mustang"
 						placeholderTextColor="rgba(0,0,0,0.45)"
 						value={search}
 						onChangeText={setSearch}
+						autoCapitalize="none"
 					/>
 
-					{search ? (
-						<TouchableOpacity onPress={() => setSearch('')}>
+					{hasSearch ? (
+						<TouchableOpacity
+							onPress={() => setSearch('')}
+						>
 							<Ionicons
 								name="close-circle"
 								size={22}
@@ -99,68 +210,60 @@ export default function SearchScreen() {
 				</View>
 
 				<FlatList
-					data={search ? filteredCars : cars}
+					data={dataToShow}
 					keyExtractor={(item) => item.id}
 					numColumns={2}
 					columnWrapperStyle={styles.row}
 					contentContainerStyle={styles.list}
 					showsVerticalScrollIndicator={false}
-					renderItem={({ item }) => (
-						<View style={styles.card}>
-							<View style={styles.cardHeader}>
-								<Text style={styles.brand}>
-									{item.brand}
-								</Text>
-
-								<TouchableOpacity
-									onPress={() =>
-										toggleFavorite(item.id)
-									}
-								>
+					renderItem={renderCarCard}
+					ListHeaderComponent={
+						!hasSearch ? (
+							<>
+								<View style={styles.emptyStart}>
 									<Ionicons
-										name={
-											favorites.includes(item.id)
-												? 'star'
-												: 'star-outline'
-										}
-										size={18}
+										name="search-outline"
+										size={42}
 										color={COLORS.primary}
 									/>
-								</TouchableOpacity>
-							</View>
 
-							<Image
-								source={{ uri: item.image }}
-								style={styles.carImage}
-							/>
+									<Text style={styles.emptyTitle}>
+										Pesquise um modelo
+									</Text>
 
-							<Text style={styles.carName}>
-								{item.name}
-							</Text>
+									<Text style={styles.emptyText}>
+										Digite uma marca ou modelo
+										para visualizar os
+										resultados.
+									</Text>
+								</View>
 
-							<TouchableOpacity style={styles.button} onPress={() => router.push('/screen/information')}>
-								<Text style={styles.buttonText}>
-									Saiba mais
+								<Text style={styles.sectionTitle}>
+									Últimos vistos
 								</Text>
-							</TouchableOpacity>
-						</View>
-					)}
+							</>
+						) : null
+					}
 					ListEmptyComponent={
-						<View style={styles.empty}>
-							<Ionicons
-								name="car-sport-outline"
-								size={42}
-								color={COLORS.primary}
-							/>
+						hasSearch ? (
+							<View style={styles.empty}>
+								<Ionicons
+									name="car-sport-outline"
+									size={42}
+									color={COLORS.primary}
+								/>
 
-							<Text style={styles.emptyTitle}>
-								Nenhum modelo encontrado
-							</Text>
+								<Text style={styles.emptyTitle}>
+									Modelo não encontrado
+								</Text>
 
-							<Text style={styles.emptyText}>
-								Tente pesquisar outro nome ou versão.
-							</Text>
-						</View>
+								<Text style={styles.emptyText}>
+									Confira se a marca ou o
+									modelo foram digitados
+									corretamente.
+								</Text>
+							</View>
+						) : null
 					}
 				/>
 			</View>
@@ -213,8 +316,18 @@ const styles = StyleSheet.create({
 		color: COLORS.primary,
 	},
 
+	sectionTitle: {
+		fontFamily: FONT.bodyBold,
+		fontSize: 13,
+		color: COLORS.primary,
+		textTransform: 'uppercase',
+		letterSpacing: 2,
+		marginTop: 30,
+		marginBottom: 16,
+	},
+
 	list: {
-		paddingBottom: 120,
+		paddingBottom: 140,
 	},
 
 	row: {
@@ -224,11 +337,11 @@ const styles = StyleSheet.create({
 
 	card: {
 		width: '48%',
-		height: 180,
+		height: 190,
 		borderWidth: 1,
-		borderColor: 'rgba(0,0,0,0.45)',
-		borderRadius: 8,
-		padding: 10,
+		borderColor: 'rgba(0,0,0,0.15)',
+		borderRadius: 16,
+		padding: 12,
 		backgroundColor: COLORS.lightNeutral,
 	},
 
@@ -263,9 +376,9 @@ const styles = StyleSheet.create({
 	button: {
 		backgroundColor: COLORS.primary,
 		borderRadius: 999,
-		paddingVertical: 6,
+		paddingVertical: 7,
 		alignItems: 'center',
-		marginTop: 8,
+		marginTop: 10,
 	},
 
 	buttonText: {
@@ -275,10 +388,21 @@ const styles = StyleSheet.create({
 		textTransform: 'uppercase',
 	},
 
+	emptyStart: {
+		alignItems: 'center',
+		justifyContent: 'center',
+		paddingVertical: 34,
+		borderWidth: 1,
+		borderColor: 'rgba(0,0,0,0.08)',
+		borderRadius: 22,
+		backgroundColor: 'rgba(0,0,0,0.03)',
+	},
+
 	empty: {
 		alignItems: 'center',
 		justifyContent: 'center',
 		marginTop: 80,
+		paddingHorizontal: 20,
 	},
 
 	emptyTitle: {
@@ -287,6 +411,7 @@ const styles = StyleSheet.create({
 		textTransform: 'uppercase',
 		marginTop: 14,
 		fontSize: 15,
+		textAlign: 'center',
 	},
 
 	emptyText: {
@@ -295,5 +420,6 @@ const styles = StyleSheet.create({
 		opacity: 0.7,
 		marginTop: 6,
 		textAlign: 'center',
+		lineHeight: 20,
 	},
 });

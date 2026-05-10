@@ -8,7 +8,7 @@ import {
 	ScrollView,
 } from 'react-native';
 
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { COLORS, FONT } from '../../style/theme';
@@ -16,21 +16,25 @@ import { COLORS, FONT } from '../../style/theme';
 const cars = [
 	{
 		id: '1',
+		brand: 'Ford',
 		name: 'Mustang 2026',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/mustang.png',
 	},
 	{
 		id: '2',
+		brand: 'Ford',
 		name: 'Bronco',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/bronco1.png',
 	},
 	{
 		id: '3',
+		brand: 'Ford',
 		name: 'Maverick',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/carro.png',
 	},
 	{
 		id: '4',
+		brand: 'Ford',
 		name: 'Expedition',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/expedtion.png',
 	},
@@ -39,9 +43,27 @@ const cars = [
 export default function CompareSelectScreen() {
 	const router = useRouter();
 
-	const [firstCar, setFirstCar] = useState(null);
+	const {
+		firstCarId,
+		firstCarBrand,
+		firstCarName,
+		firstCarImage,
+	} = useLocalSearchParams();
+
+	const initialFirstCar = firstCarId
+		? {
+				id: firstCarId,
+				brand: firstCarBrand,
+				name: firstCarName,
+				image: firstCarImage,
+		  }
+		: null;
+
+	const [firstCar, setFirstCar] = useState(initialFirstCar);
 	const [secondCar, setSecondCar] = useState(null);
-	const [activeSlot, setActiveSlot] = useState('first');
+	const [activeSlot, setActiveSlot] = useState(
+		initialFirstCar ? 'second' : 'first'
+	);
 
 	function selectCar(car) {
 		if (activeSlot === 'first') {
@@ -71,7 +93,20 @@ export default function CompareSelectScreen() {
 	function handleCompare() {
 		if (!firstCar || !secondCar) return;
 
-		router.push('/screen/detail');
+		router.push({
+			pathname: '/screen/detail',
+			params: {
+				firstCarId: firstCar.id,
+				firstCarBrand: firstCar.brand,
+				firstCarName: firstCar.name,
+				firstCarImage: firstCar.image,
+
+				secondCarId: secondCar.id,
+				secondCarBrand: secondCar.brand,
+				secondCarName: secondCar.name,
+				secondCarImage: secondCar.image,
+			},
+		});
 	}
 
 	const canCompare = firstCar && secondCar;
@@ -82,23 +117,11 @@ export default function CompareSelectScreen() {
 			contentContainerStyle={styles.container}
 			showsVerticalScrollIndicator={false}
 		>
-			<View style={styles.topBar}>
-				<TouchableOpacity
-					style={styles.backButton}
-					onPress={() => router.back()}
-				>
-					<Ionicons
-						name="arrow-back-outline"
-						size={26}
-						color={COLORS.primary}
-					/>
-				</TouchableOpacity>
-			</View>
-
 			<Text style={styles.title}>Comparar</Text>
 
 			<Text style={styles.subtitle}>
-				Selecione dois modelos para analisar desempenho, consumo e diferenciais lado a lado.
+				Selecione dois modelos para analisar desempenho, consumo e
+				diferenciais lado a lado.
 			</Text>
 
 			<View style={styles.slots}>
@@ -193,9 +216,7 @@ export default function CompareSelectScreen() {
 				</TouchableOpacity>
 			</View>
 
-			<Text style={styles.sectionTitle}>
-				Escolha um modelo
-			</Text>
+			<Text style={styles.sectionTitle}>Escolha um modelo</Text>
 
 			<View style={styles.carGrid}>
 				{cars.map((car) => {
@@ -260,19 +281,6 @@ const styles = StyleSheet.create({
 		padding: 28,
 		paddingTop: 64,
 		paddingBottom: 120,
-	},
-
-	topBar: {
-		marginBottom: 20,
-	},
-
-	backButton: {
-		width: 42,
-		height: 42,
-		borderRadius: 999,
-		alignItems: 'center',
-		justifyContent: 'center',
-		backgroundColor: 'rgba(0,0,0,0.06)',
 	},
 
 	title: {

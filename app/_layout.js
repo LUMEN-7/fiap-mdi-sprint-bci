@@ -8,6 +8,31 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../style/theme';
 
 const AuthContext = createContext(null);
+const SESSION_STORAGE_KEY = 'userSession';
+const USERS_STORAGE_KEY = 'users';
+
+function normalizeEmail(email) {
+	return String(email || '').trim().toLowerCase();
+}
+
+async function loadUsers() {
+	try {
+		const usersRaw = await AsyncStorage.getItem(USERS_STORAGE_KEY);
+		const parsedUsers = usersRaw ? JSON.parse(usersRaw) : [];
+
+		if (Array.isArray(parsedUsers)) {
+			return parsedUsers;
+		}
+
+		return [];
+	} catch {
+		return [];
+	}
+}
+
+async function saveUsers(users) {
+	await AsyncStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+}
 
 export function useAuth() {
 	const context = useContext(AuthContext);
@@ -22,17 +47,51 @@ export function useAuth() {
 function AuthProvider({ children }) {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [currentUser, setCurrentUser] = useState(null);
 
 	useEffect(() => {
-		// Carregar estado de autenticação ao abrir o app
+		// Carregar sessão e usuário atual ao abrir o app
 		const loadAuthState = async () => {
 			try {
-				const userSession = await AsyncStorage.getItem('userSession');
-				if (userSession) {
+				const userSessionRaw = await AsyncStorage.getItem(SESSION_STORAGE_KEY);
+				if (!userSessionRaw) {
+					setIsAuthenticated(false);
+					setCurrentUser(null);
+					return;
+				}
+
+				const session = JSON.parse(userSessionRaw);
+				const users = await loadUsers();
+				const loggedUser = users.find((user) => user.email === session.email);
+
+				if (loggedUser) {
 					setIsAuthenticated(true);
+					setCurrentUser(loggedUser);
+				} else if (session?.email && session?.password) {
+					const migratedUser = {
+						name: String(session?.name || '').trim(),
+						email: normalizeEmail(session.email),
+						password: String(session.password),
+						photo: session?.photo || null,
+					};
+
+					await saveUsers([...users, migratedUser]);
+					await AsyncStorage.setItem(
+						SESSION_STORAGE_KEY,
+						JSON.stringify({ email: migratedUser.email })
+					);
+
+					setIsAuthenticated(true);
+					setCurrentUser(migratedUser);
+				} else {
+					await AsyncStorage.removeItem(SESSION_STORAGE_KEY);
+					setIsAuthenticated(false);
+					setCurrentUser(null);
 				}
 			} catch (error) {
 				console.error('Erro ao carregar sessão:', error);
+				setIsAuthenticated(false);
+				setCurrentUser(null);
 			} finally {
 				setIsLoading(false);
 			}
@@ -41,32 +100,126 @@ function AuthProvider({ children }) {
 		loadAuthState();
 	}, []);
 
-	const signIn = async (userData) => {
+	const signUp = async (userData) => {
+		const formattedEmail = normalizeEmail(userData?.email);
+
+		if (!formattedEmail) {
+			throw new Error('E-mail inválido.');
+		}
+
+		const users = await loadUsers();
+		const userAlreadyExists = users.some((user) => user.email === formattedEmail);
+
+		if (userAlreadyExists) {
+			throw new Error('Este e-mail já está cadastrado.');
+		}
+
+		const createdUser = {
+			name: String(userData?.name || '').trim(),
+			email: formattedEmail,
+			password: String(userData?.password || ''),
+			photo: userData?.photo || null,
+		};
+
+		await saveUsers([...users, createdUser]);
+		await AsyncStorage.setItem(
+			SESSION_STORAGE_KEY,
+			JSON.stringify({ email: createdUser.email })
+		);
+
+		setCurrentUser(createdUser);
+		setIsAuthenticated(true);
+	};
+
+	const signIn = async ({ email, password }) => {
 		try {
-			await AsyncStorage.setItem('userSession', JSON.stringify(userData || {}));
+			const formattedEmail = normalizeEmail(email);
+			const users = await loadUsers();
+			const existingUser = users.find((user) => user.email === formattedEmail);
+
+			if (!existingUser || existingUser.password !== String(password || '')) {
+				throw new Error('E-mail ou senha incorretos.');
+			}
+
+			await AsyncStorage.setItem(
+				SESSION_STORAGE_KEY,
+				JSON.stringify({ email: existingUser.email })
+			);
+
+			setCurrentUser(existingUser);
 			setIsAuthenticated(true);
 		} catch (error) {
-			console.error('Erro ao salvar sessão:', error);
+			if (error instanceof Error) {
+				throw error;
+			}
+
+			throw new Error('Não foi possível entrar na conta.');
 		}
 	};
 
 	const signOut = async () => {
 		try {
-			await AsyncStorage.removeItem('userSession');
+			await AsyncStorage.removeItem(SESSION_STORAGE_KEY);
 			setIsAuthenticated(false);
+			setCurrentUser(null);
 		} catch (error) {
 			console.error('Erro ao fazer logout:', error);
 		}
+	};
+
+	const updateProfile = async ({ name, email, photo }) => {
+		if (!currentUser?.email) {
+			throw new Error('Nenhum usuario autenticado.');
+		}
+
+		const formattedEmail = normalizeEmail(email);
+
+		if (!formattedEmail) {
+			throw new Error('E-mail invalido.');
+		}
+
+		const users = await loadUsers();
+		const emailInUseByAnotherUser = users.some(
+			(user) =>
+				user.email === formattedEmail &&
+				user.email !== currentUser.email
+		);
+
+		if (emailInUseByAnotherUser) {
+			throw new Error('Este e-mail ja esta em uso.');
+		}
+
+		const updatedUser = {
+			...currentUser,
+			name: String(name || '').trim(),
+			email: formattedEmail,
+			photo: photo || null,
+		};
+
+		const updatedUsers = users.map((user) =>
+			user.email === currentUser.email ? updatedUser : user
+		);
+
+		await saveUsers(updatedUsers);
+		await AsyncStorage.setItem(
+			SESSION_STORAGE_KEY,
+			JSON.stringify({ email: updatedUser.email })
+		);
+
+		setCurrentUser(updatedUser);
 	};
 
 	const value = useMemo(
 		() => ({
 			isAuthenticated,
 			isLoading,
+			currentUser,
+			signUp,
 			signIn,
 			signOut,
+			updateProfile,
 		}),
-		[isAuthenticated, isLoading]
+		[currentUser, isAuthenticated, isLoading]
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -99,6 +252,7 @@ function RouteGuard() {
 			<Stack.Screen name="auth/register" />
 			<Stack.Screen name="index" />
 			<Stack.Screen name="tab" />
+			<Stack.Screen name="screen" />
 		</Stack>
 	);
 }

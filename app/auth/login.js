@@ -3,7 +3,6 @@ import { Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
 	Animated,
 	KeyboardAvoidingView,
@@ -15,6 +14,7 @@ import {
 	View,
 } from 'react-native';
 
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../_layout';
 import { COLORS, FONT } from '../../style/theme';
 
@@ -32,6 +32,8 @@ function FloatingInput({
 	error,
 }) {
 	const [focused, setFocused] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
+
 	const animation = useRef(new Animated.Value(value ? 1 : 0)).current;
 
 	function handleFocus() {
@@ -87,18 +89,36 @@ function FloatingInput({
 				</Animated.Text>
 
 				<TextInput
-					style={styles.input}
+					style={[
+						styles.input,
+						secureTextEntry && styles.passwordInput,
+					]}
 					value={value}
 					onChangeText={onChangeText}
 					onFocus={handleFocus}
 					onBlur={handleBlur}
-					secureTextEntry={secureTextEntry}
+					secureTextEntry={secureTextEntry && !showPassword}
 					keyboardType={keyboardType}
 					autoCapitalize={autoCapitalize}
 				/>
+
+				{secureTextEntry ? (
+					<TouchableOpacity
+						style={styles.eyeButton}
+						onPress={() => setShowPassword(!showPassword)}
+					>
+						<Ionicons
+							name={showPassword ? 'eye-off-outline' : 'eye-outline'}
+							size={22}
+							color="rgba(255,255,255,0.7)"
+						/>
+					</TouchableOpacity>
+				) : null}
 			</View>
 
-			{error ? <Text style={styles.inputError}>{error}</Text> : null}
+			<View style={styles.errorContainer}>
+				<Text style={styles.inputError}>{error || ' '}</Text>
+			</View>
 		</View>
 	);
 }
@@ -114,8 +134,11 @@ export default function LoginScreen() {
 		email: '',
 		password: '',
 	});
+	const [authError, setAuthError] = useState('');
 
 	const handleLogin = async () => {
+		setAuthError('');
+
 		const newErrors = {
 			email: '',
 			password: '',
@@ -135,13 +158,16 @@ export default function LoginScreen() {
 			return;
 		}
 
-		// Salvar dados da sessão no AsyncStorage
-		await signIn({
-			email,
-			password,
-		});
+		try {
+			await signIn({
+				email,
+				password,
+			});
 
-		router.replace('/tab/search');
+			router.replace('/tab/search');
+		} catch (error) {
+			setAuthError(error.message || 'Nao foi possivel entrar.');
+		}
 	};
 
 	return (
@@ -172,7 +198,10 @@ export default function LoginScreen() {
 							value={email}
 							onChangeText={(text) => {
 								setEmail(text);
-								setErrors((prev) => ({ ...prev, email: '' }));
+								setErrors((prev) => ({
+									...prev,
+									email: '',
+								}));
 							}}
 							autoCapitalize="none"
 							keyboardType="email-address"
@@ -184,7 +213,10 @@ export default function LoginScreen() {
 							value={password}
 							onChangeText={(text) => {
 								setPassword(text);
-								setErrors((prev) => ({ ...prev, password: '' }));
+								setErrors((prev) => ({
+									...prev,
+									password: '',
+								}));
 							}}
 							secureTextEntry
 							error={errors.password}
@@ -193,13 +225,24 @@ export default function LoginScreen() {
 						<Text style={styles.password}>
 							Esqueceu a senha? Recupere aqui!
 						</Text>
+
+						{authError ? (
+							<Text style={styles.authError}>{authError}</Text>
+						) : null}
 					</View>
 
-					<TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
-						<Text style={styles.primaryButtonText}>Entrar</Text>
+					<TouchableOpacity
+						style={styles.primaryButton}
+						onPress={handleLogin}
+					>
+						<Text style={styles.primaryButtonText}>
+							Entrar
+						</Text>
 					</TouchableOpacity>
 
-					<TouchableOpacity onPress={() => router.push('/auth/register')}>
+					<TouchableOpacity
+						onPress={() => router.push('/auth/register')}
+					>
 						<Text style={styles.link}>Criar conta</Text>
 					</TouchableOpacity>
 				</View>
@@ -247,7 +290,7 @@ const styles = StyleSheet.create({
 
 	form: {
 		marginTop: 40,
-		gap: 18,
+		gap: 6,
 	},
 
 	inputWrapper: {
@@ -286,11 +329,28 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 	},
 
+	passwordInput: {
+		paddingRight: 54,
+	},
+
+	eyeButton: {
+		position: 'absolute',
+		right: 16,
+		top: 0,
+		bottom: 0,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+
+	errorContainer: {
+		height: 20,
+		justifyContent: 'center',
+	},
+
 	inputError: {
 		color: '#ff4d6d',
 		fontFamily: FONT.bodyBold,
 		fontSize: 11,
-		marginTop: 6,
 		marginLeft: 4,
 	},
 
@@ -299,6 +359,13 @@ const styles = StyleSheet.create({
 		color: '#ffffff',
 		fontFamily: FONT.body,
 		opacity: 0.8,
+	},
+
+	authError: {
+		marginTop: 8,
+		color: '#ff4d6d',
+		fontFamily: FONT.bodyBold,
+		fontSize: 12,
 	},
 
 	primaryButton: {

@@ -16,16 +16,270 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { COLORS, FONT } from '../../style/theme';
 
+import { useLocalSearchParams } from 'expo-router';
+
 const { height, width } = Dimensions.get('window');
 
 const COLLAPSED_TOP = height * 0.47;
 const EXPANDED_TOP = height * 0.08;
+
+const MODEL_DATA = {
+	'1': {
+		specs: [
+			{ id: 'motor', label: 'Motor', value: '5.0L V8', icon: 'engine-outline' },
+			{ id: 'potencia', label: 'Potência', value: '488 cv', icon: 'horse-variant-fast' },
+			{ id: 'tipo', label: 'Tipo', value: 'Esportivo', icon: 'shape-outline' },
+			{ id: 'consumo', label: 'Consumo', value: '7.8 km/L', icon: 'gas-station-outline' },
+		],
+		sections: [
+			{
+				id: 'performance',
+				title: 'Performance',
+				items: [
+					'Entrega agressiva de potência para acelerações fortes',
+					'Acerto esportivo de suspensão e direção',
+					'Câmbio automático pensado para resposta rápida',
+					'Comportamento voltado para estrada e pista',
+				],
+			},
+			{
+				id: 'consumo',
+				title: 'Consumo',
+				items: [
+					'Consumo compatível com uso misto e condução esportiva',
+					'Gerenciamento eletrônico de eficiência',
+					'Métricas em tempo real no painel digital',
+					'Perfil de condução adaptável ao motorista',
+				],
+			},
+			{
+				id: 'seguranca',
+				title: 'Segurança',
+				items: [
+					'Pacote de assistência à condução com múltiplos alertas',
+					'Controle avançado de estabilidade',
+					'Assistente de frenagem e tração',
+					'Mais confiança em manobras de alta velocidade',
+				],
+			},
+			{
+				id: 'tecnologia',
+				title: 'Tecnologia',
+				items: [
+					'Central com foco em conectividade e entretenimento',
+					'Painel digital configurável',
+					'Integração com smartphone e comandos rápidos',
+					'Recursos de assistência inteligente ao volante',
+				],
+			},
+			{
+				id: 'conforto',
+				title: 'Conforto',
+				items: [
+					'Cabine com pegada premium esportiva',
+					'Bancos com acabamento refinado',
+					'Climatização automática eficiente',
+					'Experiência mais silenciosa e estável em viagem',
+				],
+			},
+		],
+	},
+	'2': {
+		specs: [
+			{ id: 'motor', label: 'Motor', value: '2.3L EcoBoost', icon: 'engine-outline' },
+			{ id: 'potencia', label: 'Potência', value: '300 cv', icon: 'horse-variant-fast' },
+			{ id: 'tipo', label: 'Tipo', value: 'SUV', icon: 'shape-outline' },
+			{ id: 'consumo', label: 'Consumo', value: '9.6 km/L', icon: 'gas-station-outline' },
+		],
+		sections: [
+			{
+				id: 'performance',
+				title: 'Performance',
+				items: [
+					'Desempenho equilibrado para cidade e estrada',
+					'Tração e resposta adaptadas ao uso off-road',
+					'Suspensão preparada para diferentes terrenos',
+					'Condução robusta com boa dirigibilidade',
+				],
+			},
+			{
+				id: 'consumo',
+				title: 'Consumo',
+				items: [
+					'Média pensada para um SUV de maior porte',
+					'Modo de condução para eficiência em deslocamentos',
+					'Monitoramento de consumo em tempo real',
+					'Verificação inteligente de autonomia',
+				],
+			},
+			{
+				id: 'seguranca',
+				title: 'Segurança',
+				items: [
+					'Pacote de assistência para trilhas e estrada',
+					'Controle de estabilidade e tração aprimorado',
+					'Alertas de manobra e ponto cego',
+					'Projetado para maior controle em trajetos exigentes',
+				],
+			},
+			{
+				id: 'tecnologia',
+				title: 'Tecnologia',
+				items: [
+					'Tela com foco em navegação e conectividade',
+					'Sistema multimídia com resposta rápida',
+					'Integração fácil com o celular',
+					'Recursos inteligentes para apoio ao motorista',
+				],
+			},
+			{
+				id: 'conforto',
+				title: 'Conforto',
+				items: [
+					'Cabine espaçosa com posição elevada',
+					'Acabamento voltado ao uso aventureiro premium',
+					'Climatização eficiente para longos trajetos',
+					'Conforto pensado para quem viaja com frequência',
+				],
+			},
+		],
+	},
+	'3': {
+		specs: [
+			{ id: 'motor', label: 'Motor', value: '2.0L Turbo', icon: 'engine-outline' },
+			{ id: 'potencia', label: 'Potência', value: '250 cv', icon: 'horse-variant-fast' },
+			{ id: 'tipo', label: 'Tipo', value: 'Picape', icon: 'shape-outline' },
+			{ id: 'consumo', label: 'Consumo', value: '12 km/L', icon: 'gas-station-outline' },
+		],
+		sections: [
+			{
+				id: 'performance',
+				title: 'Performance',
+				items: [
+					'Conjunto voltado para uso urbano e estrada',
+					'Resposta rápida com foco em versatilidade',
+					'Bom equilíbrio entre carga e dirigibilidade',
+					'Condução confortável mesmo com uso misto',
+				],
+			},
+			{
+				id: 'consumo',
+				title: 'Consumo',
+				items: [
+					'Eficiência pensada para rotina de trabalho e lazer',
+					'Gerenciamento de combustível mais inteligente',
+					'Indicadores para condução econômica',
+					'Autonomia favorável para uso diário',
+				],
+			},
+			{
+				id: 'seguranca',
+				title: 'Segurança',
+				items: [
+					'Assistentes para frenagem e estabilidade',
+					'Sensores de apoio em manobras',
+					'Boa visibilidade e controle de cabine',
+					'Sistema pensado para uso diário seguro',
+				],
+			},
+			{
+				id: 'tecnologia',
+				title: 'Tecnologia',
+				items: [
+					'Sistema conectado com recursos práticos',
+					'Tela com leitura rápida de informações',
+					'Integração com smartphone e mapas',
+					'Tecnologia útil para trabalho e lazer',
+				],
+			},
+			{
+				id: 'conforto',
+				title: 'Conforto',
+				items: [
+					'Cabine confortável para uso prolongado',
+					'Bancos com foco em ergonomia',
+					'Acabamento funcional e moderno',
+					'Boa acomodação para ocupantes e carga',
+				],
+			},
+		],
+	},
+	'4': {
+		specs: [
+			{ id: 'motor', label: 'Motor', value: '3.0L V6', icon: 'engine-outline' },
+			{ id: 'potencia', label: 'Potência', value: '400 cv', icon: 'horse-variant-fast' },
+			{ id: 'tipo', label: 'Tipo', value: 'SUV grande', icon: 'shape-outline' },
+			{ id: 'consumo', label: 'Consumo', value: '8.5 km/L', icon: 'gas-station-outline' },
+		],
+		sections: [
+			{
+				id: 'performance',
+				title: 'Performance',
+				items: [
+					'Força para viajar com segurança e presença',
+					'Resposta consistente mesmo em veículo maior',
+					'Conjunto ideal para família e longas distâncias',
+					'Direção estável para diferentes cenários de uso',
+				],
+			},
+			{
+				id: 'consumo',
+				title: 'Consumo',
+				items: [
+					'Consumo compatível com porte e proposta do modelo',
+					'Otimização eletrônica para viagem',
+					'Informações de consumo visíveis ao condutor',
+					'Gestão eficiente para deslocamentos maiores',
+				],
+			},
+			{
+				id: 'seguranca',
+				title: 'Segurança',
+				items: [
+					'Pacote completo de assistência e proteção',
+					'Sistemas eletrônicos de estabilidade e frenagem',
+					'Bom nível de visibilidade e controle',
+					'Soluções para trajetos urbanos e rodoviários',
+				],
+			},
+			{
+				id: 'tecnologia',
+				title: 'Tecnologia',
+				items: [
+					'Sistema multimídia completo',
+					'Painel moderno com múltiplas informações',
+					'Conectividade para toda a família',
+					'Recursos de assistência de alto nível',
+				],
+			},
+			{
+				id: 'conforto',
+				title: 'Conforto',
+				items: [
+					'Cabine ampla e confortável',
+					'Acabamento premium para longas viagens',
+					'Climatização e ergonomia de destaque',
+					'Proposta pensada para conforto familiar',
+				],
+			},
+		],
+	},
+};
+
+const DEFAULT_MODEL_DATA = MODEL_DATA['1'];
+
+function getModelData(modelId) {
+	return MODEL_DATA[String(modelId)] || DEFAULT_MODEL_DATA;
+}
 
 export default function InformationScreen() {
 	const router = useRouter();
 
 	const [expanded, setExpanded] = useState(false);
 	const [openSection, setOpenSection] = useState(null);
+
+	const { id, brand, name, image } = useLocalSearchParams();
+	const modelData = getModelData(id);
 
 	const translateY = useRef(new Animated.Value(COLLAPSED_TOP)).current;
 
@@ -89,110 +343,32 @@ export default function InformationScreen() {
 		setOpenSection((current) => (current === id ? null : id));
 	}
 
-	const specs = [
-		{
-			id: '1',
-			label: 'Motor',
-			value: '2.3L Turbo',
-			icon: 'engine-outline',
-		},
-		{
-			id: '2',
-			label: 'Potência',
-			value: '315 cv',
-			icon: 'horse-variant-fast',
-		},
-		{
-			id: '3',
-			label: 'Tipo',
-			value: 'Combustão',
-			icon: 'shape-outline',
-		},
-		{
-			id: '4',
-			label: 'Consumo',
-			value: '11 km/L',
-			icon: 'gas-station-outline',
-		},
-	];
-
-	const sections = [
-		{
-			id: 'performance',
-			title: 'Performance',
-			items: [
-				'Motor 2.3L EcoBoost Turbo',
-				'Potência estimada de 315 cv',
-				'Câmbio automático de alta resposta',
-				'Direção esportiva com controle preciso',
-			],
-		},
-		{
-			id: 'consumo',
-			title: 'Consumo',
-			items: [
-				'Média estimada de 11 km/L',
-				'Otimização para uso urbano e rodoviário',
-				'Indicador de eficiência em tempo real',
-				'Modo de condução econômico disponível',
-			],
-		},
-		{
-			id: 'seguranca',
-			title: 'Segurança',
-			items: [
-				'Assistente de permanência em faixa',
-				'Alerta de colisão frontal',
-				'Controle eletrônico de estabilidade',
-				'Sistema de frenagem assistida',
-			],
-		},
-		{
-			id: 'tecnologia',
-			title: 'Tecnologia',
-			items: [
-				'Central multimídia com conectividade',
-				'Painel digital configurável',
-				'Compatibilidade com smartphone',
-				'Sistemas inteligentes de assistência',
-			],
-		},
-		{
-			id: 'conforto',
-			title: 'Conforto',
-			items: [
-				'Bancos com acabamento premium',
-				'Climatização automática',
-				'Interior com foco em ergonomia',
-				'Experiência de direção refinada',
-			],
-		},
-	];
 
 	return (
 		<View style={styles.container}>
-			<View style={styles.topActions}>
-				<TouchableOpacity onPress={() => router.back()}>
+			<View style={styles.topBar}>
+				<TouchableOpacity
+					style={styles.iconButton}
+					onPress={() => router.back()}
+				>
 					<Ionicons
 						name="close-outline"
-						size={42}
-						color="rgba(0,0,0,0.55)"
+						size={28}
+						color={COLORS.primary}
 					/>
 				</TouchableOpacity>
 
-				<TouchableOpacity>
+				<TouchableOpacity style={styles.iconButton}>
 					<Ionicons
 						name="star-outline"
-						size={34}
-						color="rgba(0,0,0,0.55)"
+						size={24}
+						color={COLORS.primary}
 					/>
 				</TouchableOpacity>
 			</View>
 
 			<Image
-				source={{
-					uri: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/mustang.png',
-				}}
+				source={{ uri: image }}
 				style={styles.carImage}
 			/>
 
@@ -216,9 +392,8 @@ export default function InformationScreen() {
 					scrollEnabled={expanded}
 					contentContainerStyle={styles.sheetContent}
 				>
-					<Text style={styles.brand}>Ford</Text>
-
-					<Text style={styles.title}>Mustang 2026</Text>
+					<Text style={styles.brand}>{brand}</Text>
+					<Text style={styles.title}>{name}</Text>
 
 					<Text style={styles.description}>
 						Desempenho, presença e tecnologia se encontram em um modelo
@@ -227,7 +402,7 @@ export default function InformationScreen() {
 					</Text>
 
 					<View style={styles.specsRow}>
-						{specs.map((item) => (
+						{modelData.specs.map((item) => (
 							<View key={item.id} style={styles.specItem}>
 								<View style={styles.specIcon}>
 									<MaterialCommunityIcons
@@ -250,7 +425,6 @@ export default function InformationScreen() {
 
 					{!expanded ? (
 						<View style={styles.dragInfo}>
-							<Text style={styles.dots}>...</Text>
 
 							<Ionicons
 								name="chevron-up-outline"
@@ -264,7 +438,7 @@ export default function InformationScreen() {
 						</View>
 					) : (
 						<View style={styles.moreContent}>
-							{sections.map((section) => {
+							{modelData.sections.map((section) => {
 								const isOpen = openSection === section.id;
 
 								return (
@@ -313,7 +487,20 @@ export default function InformationScreen() {
 								);
 							})}
 
-							<TouchableOpacity style={styles.compareButton}>
+							<TouchableOpacity
+								style={styles.compareButton}
+								onPress={() => {
+									router.push({
+										pathname: '/tab/compare',
+										params: {
+											firstCarId: String(id),
+											firstCarBrand: String(brand),
+											firstCarName: String(name),
+											firstCarImage: String(image),
+										},
+									});
+								}}
+							>
 								<Text style={styles.compareButtonText}>
 									Comparar
 								</Text>
@@ -333,15 +520,22 @@ const styles = StyleSheet.create({
 		overflow: 'hidden',
 	},
 
-	topActions: {
-		position: 'absolute',
-		top: 42,
-		left: 28,
-		right: 28,
-		zIndex: 10,
+	topBar: {
 		flexDirection: 'row',
 		justifyContent: 'space-between',
 		alignItems: 'center',
+		marginBottom: 24,
+		paddingTop: 48,
+		paddingHorizontal: 24
+	},
+
+	iconButton: {
+		width: 42,
+		height: 42,
+		borderRadius: 999,
+		backgroundColor: 'rgba(0,0,0,0.06)',
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 
 	carImage: {
@@ -452,14 +646,7 @@ const styles = StyleSheet.create({
 
 	dragInfo: {
 		alignItems: 'center',
-		marginTop: 34,
-	},
-
-	dots: {
-		color: 'rgba(255,255,255,0.55)',
-		fontFamily: FONT.bodyBold,
-		fontSize: 18,
-		marginBottom: 8,
+		marginTop: 24,
 	},
 
 	dragText: {

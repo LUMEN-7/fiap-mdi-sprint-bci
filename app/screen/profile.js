@@ -14,7 +14,10 @@ import { useAuth } from '../_layout';
 
 export default function ProfileScreen() {
 	const router = useRouter();
-	const { signOut } = useAuth();
+	const { signOut, currentUser } = useAuth();
+	const displayName = currentUser?.name?.trim() || 'Usuario';
+	const displayEmail = currentUser?.email || 'Sem e-mail';
+	const profilePhoto = currentUser?.photo || null;
 
 	const handleLogout = async () => {
 		await signOut();
@@ -52,7 +55,7 @@ export default function ProfileScreen() {
 
 			<View style={styles.header}>
 				<View>
-					<Text style={styles.title}>Olá, User</Text>
+					<Text style={styles.title}>Olá, {displayName}</Text>
 
 					<Text style={styles.subtitle}>
 						Gerencie sua conta.
@@ -62,17 +65,23 @@ export default function ProfileScreen() {
 
 			<View style={styles.profileCard}>
 				<View style={styles.avatarWrapper}>
-					<Image
-						source={{
-							uri: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/logo.png',
-						}}
-						style={styles.avatar}
-					/>
+					{profilePhoto ? (
+						<Image
+							source={{ uri: profilePhoto }}
+							style={styles.avatar}
+						/>
+					) : (
+						<Ionicons
+							name="person-outline"
+							size={36}
+							color={COLORS.primary}
+						/>
+					)}
 				</View>
 
 				<View style={styles.profileInfo}>
-					<Text style={styles.name}>User Name</Text>
-					<Text style={styles.email}>user@email.com</Text>
+					<Text style={styles.name}>{displayName}</Text>
+					<Text style={styles.email}>{displayEmail}</Text>
 				</View>
 
 				<TouchableOpacity
@@ -206,9 +215,24 @@ const styles = StyleSheet.create({
 	},
 
 	avatar: {
-		width: 54,
-		height: 54,
-		resizeMode: 'contain',
+		width: 72,
+		height: 72,
+		borderRadius: 999,
+		resizeMode: 'cover',
+	},
+
+	cardEditButton: {
+		position: 'absolute',
+		right: 18,
+		top: 18,
+		width: 38,
+		height: 38,
+		borderRadius: 999,
+		backgroundColor: 'rgba(255,255,255,0.1)',
+		alignItems: 'center',
+		justifyContent: 'center',
+		borderWidth: 1,
+		borderColor: 'rgba(255,255,255,0.12)',
 	},
 
 	profileInfo: {
@@ -227,20 +251,6 @@ const styles = StyleSheet.create({
 		color: COLORS.lightNeutral,
 		opacity: 0.65,
 		marginTop: 4,
-	},
-
-	cardEditButton: {
-		position: 'absolute',
-		right: 18,
-		top: 18,
-		width: 38,
-		height: 38,
-		borderRadius: 999,
-		backgroundColor: 'rgba(255,255,255,0.1)',
-		alignItems: 'center',
-		justifyContent: 'center',
-		borderWidth: 1,
-		borderColor: 'rgba(255,255,255,0.12)',
 	},
 
 	menu: {
