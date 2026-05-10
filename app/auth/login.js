@@ -222,9 +222,9 @@ export default function LoginScreen() {
 							error={errors.password}
 						/>
 
-						<Text style={styles.password}>
+						{/* <Text style={styles.password}>
 							Esqueceu a senha? Recupere aqui!
-						</Text>
+						</Text> */}
 
 						{authError ? (
 							<Text style={styles.authError}>{authError}</Text>
