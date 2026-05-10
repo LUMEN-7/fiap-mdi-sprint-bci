@@ -5,6 +5,7 @@ import {
 	StyleSheet,
 	Image,
 	TouchableOpacity,
+	Dimensions,
 } from 'react-native';
 
 import { Ionicons } from '@expo/vector-icons';
@@ -12,46 +13,48 @@ import { useRouter } from 'expo-router';
 
 import { COLORS, FONT } from '../../style/theme';
 
+const { width, height } = Dimensions.get('window');
+
 const cars = [
 	{
 		id: '1',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/bronco1.png',
-		width: 570,
-		height: 544,
-		right: -220,
-		bottom: 120,
+		widthRatio: 1.25,
+		heightRatio: 0.55,
+		rightRatio: -0.42,
+		
 	},
 	{
 		id: '2',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/mustang.png',
-		width: 558,
-		height: 419,
-		right: -250,
-		bottom: 120,
+		widthRatio: 1.22,
+		heightRatio: 0.48,
+		rightRatio: -0.45,
+		
 	},
 	{
 		id: '3',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/carro.png',
-		width: 556,
-		height: 466,
-		right: -230,
-		bottom: 120,
+		widthRatio: 1.22,
+		heightRatio: 0.50,
+		rightRatio: -0.42,
+		
 	},
 	{
 		id: '4',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/expedtion.png',
-		width: 555,
-		height: 491,
-		right: -200,
-		bottom: 120,
+		widthRatio: 1.22,
+		heightRatio: 0.52,
+		rightRatio: -0.38,
+		
 	},
 	{
 		id: '5',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/bronco2.png',
-		width: 510,
-		height: 553,
-		right: -220,
-		bottom: 120,
+		widthRatio: 1.18,
+		heightRatio: 0.55,
+		rightRatio: -0.40,
+		
 	},
 ];
 
@@ -77,22 +80,22 @@ export default function Home() {
 		{
 			label: 'Perfil',
 			icon: 'person-circle-outline',
-			route: '/profile',
+			route: '../screen/profile',
 		},
 		{
 			label: 'Salvos',
 			icon: 'bookmark-outline',
-			route: '/saved',
+			route: '../screen/saved',
 		},
 		{
 			label: 'Notificações',
 			icon: 'notifications-outline',
-			route: '/notifications',
+			route: '../screen/notifications',
 		},
 		{
 			label: 'Anotações',
 			icon: 'document-text-outline',
-			route: '/notes',
+			route: '../screen/notes',
 		},
 	];
 
@@ -102,7 +105,7 @@ export default function Home() {
 				<Text style={styles.greeting}>Olá User</Text>
 
 				<Text style={styles.subtitle}>
-					Comprove com apenas um clique que você está além da comparação
+					Built Beyond Comparison é mais do que um conceito, é o compromisso de transformar inovação, estratégia e criatividade em experiências que mantêm a Ford sempre além de qualquer comparação. E você, está pronto para levar a Ford além da comparação?
 				</Text>
 			</View>
 
@@ -112,10 +115,10 @@ export default function Home() {
 					style={[
 						styles.carImage,
 						{
-							width: currentCar.width,
-							height: currentCar.height,
-							right: currentCar.right,
-							bottom: currentCar.bottom,
+							width: width * currentCar.widthRatio,
+							height: height * currentCar.heightRatio,
+							right: width * currentCar.rightRatio,
+							bottom: height * currentCar.bottomRatio,
 						},
 					]}
 				/>
@@ -136,8 +139,10 @@ export default function Home() {
 								size={20}
 								color={COLORS.lightNeutral}
 							/>
-							<Text style={styles.actionText}>{action.label}</Text>
 
+							<Text style={styles.actionText}>
+								{action.label}
+							</Text>
 						</TouchableOpacity>
 					))}
 
@@ -160,7 +165,7 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		backgroundColor: COLORS.lightNeutral,
-		paddingTop: 90,
+		paddingTop: 100,
 		overflow: 'hidden',
 	},
 
@@ -170,19 +175,20 @@ const styles = StyleSheet.create({
 
 	greeting: {
 		fontFamily: FONT.title,
-		fontSize: 42,
+		fontSize: 48,
 		textTransform: 'uppercase',
 		color: COLORS.primary,
-		marginLeft: 28,
+		marginLeft: 32,
 	},
 
 	subtitle: {
 		fontFamily: FONT.body,
 		color: COLORS.darkGrey,
 		opacity: 0.7,
-		marginTop: 12,
-		marginLeft: 28,
-		maxWidth: 260,
+		marginLeft: 32,
+		fontSize: 12,
+		textAlign: 'justify',
+		maxWidth: 300,
 	},
 
 	hero: {
@@ -195,14 +201,12 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		resizeMode: 'contain',
 		opacity: 0.98,
-		transform: [{ scale: 1.05 }],
 		zIndex: 1,
 	},
 
 	overlay: {
 		position: 'absolute',
 		width: '100%',
-		height: 220,
 		bottom: 0,
 		zIndex: 2,
 	},
@@ -234,7 +238,7 @@ const styles = StyleSheet.create({
 		paddingVertical: 12,
 		paddingHorizontal: 18,
 		marginBottom: 12,
-		width: 150
+		width: 150,
 	},
 
 	actionText: {

@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { Anton_400Regular } from '@expo-google-fonts/anton';
 import { TitilliumWeb_400Regular, TitilliumWeb_700Bold } from '@expo-google-fonts/titillium-web';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../style/theme';
 
 const AuthContext = createContext(null);
@@ -20,25 +21,66 @@ export function useAuth() {
 
 function AuthProvider({ children }) {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		// Carregar estado de autenticação ao abrir o app
+		const loadAuthState = async () => {
+			try {
+				const userSession = await AsyncStorage.getItem('userSession');
+				if (userSession) {
+					setIsAuthenticated(true);
+				}
+			} catch (error) {
+				console.error('Erro ao carregar sessão:', error);
+			} finally {
+				setIsLoading(false);
+			}
+		};
+
+		loadAuthState();
+	}, []);
+
+	const signIn = async (userData) => {
+		try {
+			await AsyncStorage.setItem('userSession', JSON.stringify(userData || {}));
+			setIsAuthenticated(true);
+		} catch (error) {
+			console.error('Erro ao salvar sessão:', error);
+		}
+	};
+
+	const signOut = async () => {
+		try {
+			await AsyncStorage.removeItem('userSession');
+			setIsAuthenticated(false);
+		} catch (error) {
+			console.error('Erro ao fazer logout:', error);
+		}
+	};
 
 	const value = useMemo(
 		() => ({
 			isAuthenticated,
-			signIn: () => setIsAuthenticated(true),
-			signOut: () => setIsAuthenticated(false),
+			isLoading,
+			signIn,
+			signOut,
 		}),
-		[isAuthenticated]
+		[isAuthenticated, isLoading]
 	);
 
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 function RouteGuard() {
-	const { isAuthenticated } = useAuth();
+	const { isAuthenticated, isLoading } = useAuth();
 	const segments = useSegments();
 	const router = useRouter();
 
 	useEffect(() => {
+		// Aguardar carregamento do estado de autenticação
+		if (isLoading) return;
+
 		const isAuthRoute = segments[0] === 'auth';
 
 		if (!isAuthenticated && !isAuthRoute) {
@@ -49,7 +91,7 @@ function RouteGuard() {
 		if (isAuthenticated && isAuthRoute) {
 			router.replace('/');
 		}
-	}, [isAuthenticated, router, segments]);
+	}, [isAuthenticated, isLoading, router, segments]);
 
 	return (
 		<Stack initialRouteName="auth/login" screenOptions={{ headerShown: false }}>

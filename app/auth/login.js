@@ -3,6 +3,7 @@ import { Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
 	Animated,
 	KeyboardAvoidingView,
@@ -114,7 +115,7 @@ export default function LoginScreen() {
 		password: '',
 	});
 
-	const handleLogin = () => {
+	const handleLogin = async () => {
 		const newErrors = {
 			email: '',
 			password: '',
@@ -134,7 +135,12 @@ export default function LoginScreen() {
 			return;
 		}
 
-		signIn();
+		// Salvar dados da sessão no AsyncStorage
+		await signIn({
+			email,
+			password,
+		});
+
 		router.replace('/tab/search');
 	};
 
