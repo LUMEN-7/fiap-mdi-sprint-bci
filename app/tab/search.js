@@ -14,6 +14,7 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { COLORS, FONT } from '../../style/theme';
+import { useFavorites } from '../_layout';
 
 const cars = [
 	{
@@ -85,9 +86,9 @@ function searchCars(searchText) {
 
 export default function SearchScreen() {
 	const router = useRouter();
+	const { isFavorite, toggleFavorite } = useFavorites();
 
 	const [search, setSearch] = useState('');
-	const [favorites, setFavorites] = useState([]);
 
 	const hasSearch = search.trim().length > 0;
 	const filteredCars = searchCars(search);
@@ -95,18 +96,6 @@ export default function SearchScreen() {
 	const dataToShow = hasSearch
 		? filteredCars
 		: lastSeenCars;
-
-	function toggleFavorite(id) {
-		if (favorites.includes(id)) {
-			setFavorites(
-				favorites.filter((item) => item !== id)
-			);
-
-			return;
-		}
-
-		setFavorites([...favorites, id]);
-	}
 
 	function goToInformation(car) {
 		router.push({
@@ -134,7 +123,7 @@ export default function SearchScreen() {
 					>
 						<Ionicons
 							name={
-								favorites.includes(item.id)
+								isFavorite(item.id)
 									? 'star'
 									: 'star-outline'
 							}

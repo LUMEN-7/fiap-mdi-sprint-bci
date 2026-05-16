@@ -105,11 +105,6 @@ export default function Home() {
 			route: '../screen/saved',
 		},
 		{
-			label: 'Notificações',
-			icon: 'notifications-outline',
-			route: '../screen/notifications',
-		},
-		{
 			label: 'Anotações',
 			icon: 'document-text-outline',
 			route: '../screen/notes',

@@ -16,6 +16,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { COLORS, FONT } from '../../style/theme';
 import { getCarModel } from '../data/carModels';
+import { useFavorites } from '../_layout';
 
 import { useLocalSearchParams } from 'expo-router';
 
@@ -26,12 +27,15 @@ const EXPANDED_TOP = height * 0.08;
 
 export default function InformationScreen() {
 	const router = useRouter();
+	const { isFavorite, toggleFavorite } = useFavorites();
 
 	const [expanded, setExpanded] = useState(false);
 	const [openSection, setOpenSection] = useState(null);
 
 	const { id, brand, name, image } = useLocalSearchParams();
 	const modelData = getCarModel(id);
+	const currentCarId = String(id || modelData.id);
+	const isCurrentCarFavorite = isFavorite(currentCarId);
 
 	const translateY = useRef(new Animated.Value(COLLAPSED_TOP)).current;
 
@@ -110,9 +114,12 @@ export default function InformationScreen() {
 					/>
 				</TouchableOpacity>
 
-				<TouchableOpacity style={styles.iconButton}>
+				<TouchableOpacity
+					style={styles.iconButton}
+					onPress={() => toggleFavorite(currentCarId)}
+				>
 					<Ionicons
-						name="star-outline"
+						name={isCurrentCarFavorite ? 'star' : 'star-outline'}
 						size={24}
 						color={COLORS.primary}
 					/>

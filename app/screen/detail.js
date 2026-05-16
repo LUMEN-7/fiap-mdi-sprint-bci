@@ -18,9 +18,16 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { COLORS, FONT } from '../../style/theme';
 import { getCarModel, getComparisonSummary } from '../data/carModels';
+import { useFavorites } from '../_layout';
 
 export default function CompareDetailScreen() {
 	const router = useRouter();
+	const {
+		isFavorite,
+		setFavorite,
+		isComparisonFavorite,
+		toggleComparisonFavorite,
+	} = useFavorites();
 
 	const {
 		firstCarId,
@@ -63,6 +70,24 @@ export default function CompareDetailScreen() {
 			image: String(secondCarImage || car.image),
 		};
 	}, [secondCarBrand, secondCarId, secondCarImage, secondCarName]);
+
+	const areComparedCarsFavorite =
+		isFavorite(firstCar.id) && isFavorite(secondCar.id);
+	const isCurrentComparisonFavorite = isComparisonFavorite(
+		firstCar.id,
+		secondCar.id
+	);
+
+	function handleToggleComparisonFavorite() {
+		toggleComparisonFavorite({
+			firstCar,
+			secondCar,
+		});
+
+		const nextFavoriteValue = !isCurrentComparisonFavorite;
+		setFavorite(firstCar.id, nextFavoriteValue);
+		setFavorite(secondCar.id, nextFavoriteValue);
+	}
 
 	const comparisonSummary = getComparisonSummary(firstCar.id, secondCar.id);
 
@@ -107,9 +132,12 @@ export default function CompareDetailScreen() {
 					/>
 				</TouchableOpacity>
 
-				<TouchableOpacity style={styles.iconButton}>
+				<TouchableOpacity
+					style={styles.iconButton}
+					onPress={handleToggleComparisonFavorite}
+				>
 					<Ionicons
-						name="star-outline"
+						name={isCurrentComparisonFavorite ? 'star' : 'star-outline'}
 						size={24}
 						color={COLORS.primary}
 					/>

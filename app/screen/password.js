@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
 	KeyboardAvoidingView,
 	Platform,
+	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -49,7 +50,8 @@ export default function PasswordScreen() {
 		}
 
 		if (newPassword.trim().length < 6) {
-			newErrors.newPassword = 'A nova senha precisa ter no minimo 6 caracteres.';
+			newErrors.newPassword =
+				'A nova senha precisa ter no minimo 6 caracteres.';
 		}
 
 		if (newPassword !== confirmPassword) {
@@ -58,7 +60,11 @@ export default function PasswordScreen() {
 
 		setErrors(newErrors);
 
-		if (newErrors.currentPassword || newErrors.newPassword || newErrors.confirmPassword) {
+		if (
+			newErrors.currentPassword ||
+			newErrors.newPassword ||
+			newErrors.confirmPassword
+		) {
 			return;
 		}
 
@@ -85,86 +91,171 @@ export default function PasswordScreen() {
 		<SafeAreaView style={styles.safeArea}>
 			<KeyboardAvoidingView
 				style={styles.keyboard}
-				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 			>
-				<View style={styles.container}>
+				<ScrollView
+					contentContainerStyle={styles.container}
+					keyboardShouldPersistTaps="handled"
+					showsVerticalScrollIndicator={false}
+				>
 					<View style={styles.topBar}>
 						<TouchableOpacity
 							style={styles.backButton}
 							onPress={() => router.back()}
 						>
-							<Ionicons name="chevron-back" size={28} color={COLORS.lightNeutral} />
+							<Ionicons
+								name="chevron-back"
+								size={28}
+								color={COLORS.lightNeutral}
+							/>
 						</TouchableOpacity>
 					</View>
 
 					<Text style={styles.title}>Trocar senha</Text>
-					<Text style={styles.subtitle}>Atualize sua senha de acesso.</Text>
+
+					<Text style={styles.subtitle}>
+						Atualize sua senha de acesso.
+					</Text>
 
 					<View style={styles.form}>
 						<Text style={styles.label}>SENHA ATUAL</Text>
+
 						<View style={styles.passwordField}>
 							<TextInput
 								style={styles.input}
 								value={currentPassword}
 								onChangeText={(text) => {
 									setCurrentPassword(text);
-									setErrors((prev) => ({ ...prev, currentPassword: '' }));
+									setErrors((prev) => ({
+										...prev,
+										currentPassword: '',
+									}));
 								}}
 								secureTextEntry={!showCurrentPassword}
 								placeholder="Digite sua senha atual"
 								placeholderTextColor="rgba(255,255,255,0.55)"
 							/>
-							<TouchableOpacity style={styles.eyeButton} onPress={() => setShowCurrentPassword((value) => !value)}>
-								<Ionicons name={showCurrentPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="rgba(255,255,255,0.7)" />
+
+							<TouchableOpacity
+								style={styles.eyeButton}
+								onPress={() =>
+									setShowCurrentPassword((value) => !value)
+								}
+							>
+								<Ionicons
+									name={
+										showCurrentPassword
+											? 'eye-off-outline'
+											: 'eye-outline'
+									}
+									size={20}
+									color="rgba(255,255,255,0.7)"
+								/>
 							</TouchableOpacity>
 						</View>
-						<Text style={styles.fieldError}>{errors.currentPassword || ' '}</Text>
+
+						<Text style={styles.fieldError}>
+							{errors.currentPassword || ' '}
+						</Text>
 
 						<Text style={styles.label}>NOVA SENHA</Text>
+
 						<View style={styles.passwordField}>
 							<TextInput
 								style={styles.input}
 								value={newPassword}
 								onChangeText={(text) => {
 									setNewPassword(text);
-									setErrors((prev) => ({ ...prev, newPassword: '' }));
+									setErrors((prev) => ({
+										...prev,
+										newPassword: '',
+									}));
 								}}
 								secureTextEntry={!showNewPassword}
 								placeholder="Digite a nova senha"
 								placeholderTextColor="rgba(255,255,255,0.55)"
 							/>
-							<TouchableOpacity style={styles.eyeButton} onPress={() => setShowNewPassword((value) => !value)}>
-								<Ionicons name={showNewPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="rgba(255,255,255,0.7)" />
+
+							<TouchableOpacity
+								style={styles.eyeButton}
+								onPress={() =>
+									setShowNewPassword((value) => !value)
+								}
+							>
+								<Ionicons
+									name={
+										showNewPassword
+											? 'eye-off-outline'
+											: 'eye-outline'
+									}
+									size={20}
+									color="rgba(255,255,255,0.7)"
+								/>
 							</TouchableOpacity>
 						</View>
-						<Text style={styles.fieldError}>{errors.newPassword || ' '}</Text>
+
+						<Text style={styles.fieldError}>
+							{errors.newPassword || ' '}
+						</Text>
 
 						<Text style={styles.label}>CONFIRMAR NOVA SENHA</Text>
+
 						<View style={styles.passwordField}>
 							<TextInput
 								style={styles.input}
 								value={confirmPassword}
 								onChangeText={(text) => {
 									setConfirmPassword(text);
-									setErrors((prev) => ({ ...prev, confirmPassword: '' }));
+									setErrors((prev) => ({
+										...prev,
+										confirmPassword: '',
+									}));
 								}}
 								secureTextEntry={!showConfirmPassword}
 								placeholder="Repita a nova senha"
 								placeholderTextColor="rgba(255,255,255,0.55)"
 							/>
-							<TouchableOpacity style={styles.eyeButton} onPress={() => setShowConfirmPassword((value) => !value)}>
-								<Ionicons name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color="rgba(255,255,255,0.7)" />
+
+							<TouchableOpacity
+								style={styles.eyeButton}
+								onPress={() =>
+									setShowConfirmPassword((value) => !value)
+								}
+							>
+								<Ionicons
+									name={
+										showConfirmPassword
+											? 'eye-off-outline'
+											: 'eye-outline'
+									}
+									size={20}
+									color="rgba(255,255,255,0.7)"
+								/>
 							</TouchableOpacity>
 						</View>
-						<Text style={styles.fieldError}>{errors.confirmPassword || ' '}</Text>
 
-						{authError ? <Text style={styles.authError}>{authError}</Text> : null}
+						<Text style={styles.fieldError}>
+							{errors.confirmPassword || ' '}
+						</Text>
 
-						<TouchableOpacity style={[styles.primaryButton, saving ? styles.primaryButtonDisabled : null]} onPress={handleSave} disabled={saving}>
-							<Text style={styles.primaryButtonText}>{saving ? 'Salvando...' : 'Salvar senha'}</Text>
+						{authError ? (
+							<Text style={styles.authError}>{authError}</Text>
+						) : null}
+
+						<TouchableOpacity
+							style={[
+								styles.primaryButton,
+								saving ? styles.primaryButtonDisabled : null,
+							]}
+							onPress={handleSave}
+							disabled={saving}
+						>
+							<Text style={styles.primaryButtonText}>
+								{saving ? 'Salvando...' : 'Salvar senha'}
+							</Text>
 						</TouchableOpacity>
 					</View>
-				</View>
+				</ScrollView>
 			</KeyboardAvoidingView>
 
 			<StatusBar style="light" />
@@ -173,10 +264,26 @@ export default function PasswordScreen() {
 }
 
 const styles = StyleSheet.create({
-	safeArea: { flex: 1, backgroundColor: COLORS.primary },
-	keyboard: { flex: 1 },
-	container: { flex: 1, padding: 28, paddingTop: 30 },
-	topBar: { marginBottom: 18 },
+	safeArea: {
+		flex: 1,
+		backgroundColor: COLORS.primary,
+	},
+
+	keyboard: {
+		flex: 1,
+	},
+
+	container: {
+		flexGrow: 1,
+		padding: 28,
+		paddingTop: 30,
+		paddingBottom: 40,
+	},
+
+	topBar: {
+		marginBottom: 18,
+	},
+
 	backButton: {
 		width: 44,
 		height: 44,
@@ -185,16 +292,93 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		justifyContent: 'center',
 	},
-	title: { fontFamily: FONT.title, color: COLORS.lightNeutral, fontSize: 44, textTransform: 'uppercase' },
-	subtitle: { fontFamily: FONT.body, color: COLORS.lightNeutral, opacity: 0.75, marginTop: 4 },
-	form: { marginTop: 26 },
-	label: { fontFamily: FONT.bodyBold, color: COLORS.lightNeutral, fontSize: 12, letterSpacing: 0.4, opacity: 0.9, marginBottom: 6 },
-	passwordField: { position: 'relative' },
-	input: { borderWidth: 1, borderColor: COLORS.lightNeutral, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 13, color: COLORS.lightNeutral, fontFamily: FONT.bodyBold, fontSize: 14 },
-	eyeButton: { position: 'absolute', right: 14, top: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' },
-	fieldError: { height: 20, color: '#ff4d6d', fontFamily: FONT.bodyBold, fontSize: 11, marginLeft: 4, marginTop: 2 },
-	authError: { color: '#ff4d6d', fontFamily: FONT.bodyBold, fontSize: 12, textAlign: 'center', marginTop: 8, marginBottom: 8 },
-	primaryButton: { backgroundColor: COLORS.lightNeutral, borderRadius: 99, paddingVertical: 10, alignItems: 'center', marginTop: 6 },
-	primaryButtonDisabled: { opacity: 0.7 },
-	primaryButtonText: { color: COLORS.primary, fontFamily: FONT.bodyBold, fontSize: 16, textTransform: 'uppercase' },
+
+	title: {
+		fontFamily: FONT.title,
+		color: COLORS.lightNeutral,
+		fontSize: 44,
+		textTransform: 'uppercase',
+	},
+
+	subtitle: {
+		fontFamily: FONT.body,
+		color: COLORS.lightNeutral,
+		opacity: 0.75,
+		marginTop: 4,
+	},
+
+	form: {
+		marginTop: 26,
+	},
+
+	label: {
+		fontFamily: FONT.bodyBold,
+		color: COLORS.lightNeutral,
+		fontSize: 12,
+		letterSpacing: 0.4,
+		opacity: 0.9,
+		marginBottom: 6,
+	},
+
+	passwordField: {
+		position: 'relative',
+	},
+
+	input: {
+		borderWidth: 1,
+		borderColor: COLORS.lightNeutral,
+		borderRadius: 8,
+		paddingHorizontal: 14,
+		paddingVertical: 13,
+		paddingRight: 48,
+		color: COLORS.lightNeutral,
+		fontFamily: FONT.bodyBold,
+		fontSize: 14,
+	},
+
+	eyeButton: {
+		position: 'absolute',
+		right: 14,
+		top: 0,
+		bottom: 0,
+		justifyContent: 'center',
+		alignItems: 'center',
+	},
+
+	fieldError: {
+		height: 20,
+		color: '#ff4d6d',
+		fontFamily: FONT.bodyBold,
+		fontSize: 11,
+		marginLeft: 4,
+		marginTop: 2,
+	},
+
+	authError: {
+		color: '#ff4d6d',
+		fontFamily: FONT.bodyBold,
+		fontSize: 12,
+		textAlign: 'center',
+		marginTop: 8,
+		marginBottom: 8,
+	},
+
+	primaryButton: {
+		backgroundColor: COLORS.lightNeutral,
+		borderRadius: 99,
+		paddingVertical: 10,
+		alignItems: 'center',
+		marginTop: 6,
+	},
+
+	primaryButtonDisabled: {
+		opacity: 0.7,
+	},
+
+	primaryButtonText: {
+		color: COLORS.primary,
+		fontFamily: FONT.bodyBold,
+		fontSize: 16,
+		textTransform: 'uppercase',
+	},
 });

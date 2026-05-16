@@ -3,10 +3,12 @@ import { Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 import {
 	Animated,
 	KeyboardAvoidingView,
 	Platform,
+	ScrollView,
 	StyleSheet,
 	Text,
 	TextInput,
@@ -134,6 +136,7 @@ export default function LoginScreen() {
 		email: '',
 		password: '',
 	});
+
 	const [authError, setAuthError] = useState('');
 
 	const handleLogin = async () => {
@@ -173,79 +176,85 @@ export default function LoginScreen() {
 	return (
 		<SafeAreaView style={styles.safeArea}>
 			<KeyboardAvoidingView
-				style={styles.container}
-				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+				style={{ flex: 1 }}
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 			>
-				<View style={styles.logo}>
-					<Image
-						source={{
-							uri: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/logo.png',
-						}}
-						style={styles.logoImage}
-					/>
-				</View>
-
-				<View style={styles.card}>
-					<Text style={styles.title}>Login</Text>
-
-					<Text style={styles.subtitle}>
-						Preencha as informações para continuar.
-					</Text>
-
-					<View style={styles.form}>
-						<FloatingInput
-							label="E-MAIL"
-							value={email}
-							onChangeText={(text) => {
-								setEmail(text);
-								setErrors((prev) => ({
-									...prev,
-									email: '',
-								}));
+				<ScrollView
+					contentContainerStyle={styles.container}
+					keyboardShouldPersistTaps="handled"
+					showsVerticalScrollIndicator={false}
+				>
+					<View style={styles.logo}>
+						<Image
+							source={{
+								uri: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/logo.png',
 							}}
-							autoCapitalize="none"
-							keyboardType="email-address"
-							error={errors.email}
+							style={styles.logoImage}
 						/>
-
-						<FloatingInput
-							label="SENHA"
-							value={password}
-							onChangeText={(text) => {
-								setPassword(text);
-								setErrors((prev) => ({
-									...prev,
-									password: '',
-								}));
-							}}
-							secureTextEntry
-							error={errors.password}
-						/>
-
-						{/* <Text style={styles.password}>
-							Esqueceu a senha? Recupere aqui!
-						</Text> */}
-
-						{authError ? (
-							<Text style={styles.authError}>{authError}</Text>
-						) : null}
 					</View>
 
-					<TouchableOpacity
-						style={styles.primaryButton}
-						onPress={handleLogin}
-					>
-						<Text style={styles.primaryButtonText}>
-							Entrar
-						</Text>
-					</TouchableOpacity>
+					<View style={styles.card}>
+						<Text style={styles.title}>Login</Text>
 
-					<TouchableOpacity
-						onPress={() => router.push('/auth/register')}
-					>
-						<Text style={styles.link}>Criar conta</Text>
-					</TouchableOpacity>
-				</View>
+						<Text style={styles.subtitle}>
+							Preencha as informações para continuar.
+						</Text>
+
+						<View style={styles.form}>
+							<FloatingInput
+								label="E-MAIL"
+								value={email}
+								onChangeText={(text) => {
+									setEmail(text);
+
+									setErrors((prev) => ({
+										...prev,
+										email: '',
+									}));
+								}}
+								autoCapitalize="none"
+								keyboardType="email-address"
+								error={errors.email}
+							/>
+
+							<FloatingInput
+								label="SENHA"
+								value={password}
+								onChangeText={(text) => {
+									setPassword(text);
+
+									setErrors((prev) => ({
+										...prev,
+										password: '',
+									}));
+								}}
+								secureTextEntry
+								error={errors.password}
+							/>
+
+							{authError ? (
+								<Text style={styles.authError}>
+									{authError}
+								</Text>
+							) : null}
+						</View>
+
+						<TouchableOpacity
+							style={styles.primaryButton}
+							onPress={handleLogin}
+						>
+							<Text style={styles.primaryButtonText}>
+								Entrar
+							</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							onPress={() => router.push('/auth/register')}
+						>
+							<Text style={styles.link}>Criar conta</Text>
+						</TouchableOpacity>
+					</View>
+				</ScrollView>
 			</KeyboardAvoidingView>
 
 			<StatusBar style="light" />
@@ -260,8 +269,13 @@ const styles = StyleSheet.create({
 	},
 
 	container: {
-		flex: 1,
+		flexGrow: 1,
 		padding: 36,
+		justifyContent: 'center',
+	},
+
+	card: {
+		width: '100%',
 	},
 
 	logo: {
@@ -352,13 +366,6 @@ const styles = StyleSheet.create({
 		fontFamily: FONT.bodyBold,
 		fontSize: 11,
 		marginLeft: 4,
-	},
-
-	password: {
-		marginTop: 2,
-		color: '#ffffff',
-		fontFamily: FONT.body,
-		opacity: 0.8,
 	},
 
 	authError: {

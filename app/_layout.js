@@ -7,9 +7,13 @@ import { TitilliumWeb_400Regular, TitilliumWeb_700Bold } from '@expo-google-font
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS } from '../style/theme';
 
+
 const AuthContext = createContext(null);
+const FavoritesContext = createContext(null);
 const SESSION_STORAGE_KEY = 'userSession';
 const USERS_STORAGE_KEY = 'users';
+const FAVORITES_STORAGE_KEY = 'favoriteCarIds';
+const FAVORITE_COMPARISONS_STORAGE_KEY = 'favoriteComparisons';
 
 function normalizeEmail(email) {
 	return String(email || '').trim().toLowerCase();
@@ -39,6 +43,16 @@ export function useAuth() {
 
 	if (!context) {
 		throw new Error('useAuth must be used within AuthProvider');
+	}
+
+	return context;
+}
+
+export function useFavorites() {
+	const context = useContext(FavoritesContext);
+
+	if (!context) {
+		throw new Error('useFavorites must be used within FavoritesProvider');
 	}
 
 	return context;
@@ -256,6 +270,160 @@ function AuthProvider({ children }) {
 	return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+function FavoritesProvider({ children }) {
+	const [favoriteIds, setFavoriteIds] = useState([]);
+	const [favoriteComparisons, setFavoriteComparisons] = useState([]);
+	const [isFavoritesLoading, setIsFavoritesLoading] = useState(true);
+
+	useEffect(() => {
+		const loadFavorites = async () => {
+			try {
+				const favoritesRaw = await AsyncStorage.getItem(FAVORITES_STORAGE_KEY);
+				const parsedFavorites = favoritesRaw ? JSON.parse(favoritesRaw) : [];
+				const comparisonsRaw = await AsyncStorage.getItem(FAVORITE_COMPARISONS_STORAGE_KEY);
+				const parsedComparisons = comparisonsRaw ? JSON.parse(comparisonsRaw) : [];
+
+				if (Array.isArray(parsedFavorites)) {
+					setFavoriteIds(parsedFavorites.map((id) => String(id)));
+				} else {
+					setFavoriteIds([]);
+				}
+
+				if (Array.isArray(parsedComparisons)) {
+					setFavoriteComparisons(parsedComparisons);
+				} else {
+					setFavoriteComparisons([]);
+				}
+			} catch {
+				setFavoriteIds([]);
+				setFavoriteComparisons([]);
+			} finally {
+				setIsFavoritesLoading(false);
+			}
+		};
+
+		loadFavorites();
+	}, []);
+
+	const updateFavorites = (updater) => {
+		setFavoriteIds((currentFavorites) => {
+			const nextFavorites = updater(currentFavorites);
+			void AsyncStorage.setItem(
+				FAVORITES_STORAGE_KEY,
+				JSON.stringify(nextFavorites)
+			);
+			return nextFavorites;
+		});
+	};
+
+	const updateFavoriteComparisons = (updater) => {
+		setFavoriteComparisons((currentComparisons) => {
+			const nextComparisons = updater(currentComparisons);
+			void AsyncStorage.setItem(
+				FAVORITE_COMPARISONS_STORAGE_KEY,
+				JSON.stringify(nextComparisons)
+			);
+			return nextComparisons;
+		});
+	};
+
+	const toggleFavorite = (id) => {
+		const normalizedId = String(id);
+
+		updateFavorites((currentFavorites) => {
+			if (currentFavorites.includes(normalizedId)) {
+				return currentFavorites.filter((item) => item !== normalizedId);
+			}
+
+			return [...currentFavorites, normalizedId];
+		});
+	};
+
+	const setFavorite = (id, shouldFavorite) => {
+		const normalizedId = String(id);
+
+		updateFavorites((currentFavorites) => {
+			const alreadyFavorite = currentFavorites.includes(normalizedId);
+
+			if (shouldFavorite && !alreadyFavorite) {
+				return [...currentFavorites, normalizedId];
+			}
+
+			if (!shouldFavorite && alreadyFavorite) {
+				return currentFavorites.filter((item) => item !== normalizedId);
+			}
+
+			return currentFavorites;
+		});
+	};
+
+	function normalizeComparison(firstCarId, secondCarId) {
+		const firstId = String(firstCarId);
+		const secondId = String(secondCarId);
+		return [firstId, secondId].sort();
+	}
+
+	function getComparisonId(firstCarId, secondCarId) {
+		const [leftId, rightId] = normalizeComparison(firstCarId, secondCarId);
+		return `${leftId}__${rightId}`;
+	}
+
+	const isComparisonFavorite = (firstCarId, secondCarId) => {
+		const comparisonId = getComparisonId(firstCarId, secondCarId);
+		return favoriteComparisons.some((comparison) => comparison.id === comparisonId);
+	};
+
+	const toggleComparisonFavorite = ({ firstCar, secondCar }) => {
+		const comparisonId = getComparisonId(firstCar.id, secondCar.id);
+
+		updateFavoriteComparisons((currentComparisons) => {
+			const exists = currentComparisons.some((comparison) => comparison.id === comparisonId);
+
+			if (exists) {
+				return currentComparisons.filter((comparison) => comparison.id !== comparisonId);
+			}
+
+			return [
+				{
+					id: comparisonId,
+					firstCar: {
+						id: String(firstCar.id),
+						name: String(firstCar.name),
+						brand: String(firstCar.brand),
+						image: String(firstCar.image),
+					},
+					secondCar: {
+						id: String(secondCar.id),
+						name: String(secondCar.name),
+						brand: String(secondCar.brand),
+						image: String(secondCar.image),
+					},
+					createdAt: new Date().toLocaleDateString('pt-BR'),
+				},
+				...currentComparisons,
+			];
+		});
+	};
+
+	const isFavorite = (id) => favoriteIds.includes(String(id));
+
+	const value = useMemo(
+		() => ({
+			favoriteIds,
+			favoriteComparisons,
+			isFavoritesLoading,
+			toggleFavorite,
+			setFavorite,
+			isFavorite,
+			toggleComparisonFavorite,
+			isComparisonFavorite,
+		}),
+		[favoriteComparisons, favoriteIds, isFavoritesLoading]
+	);
+
+	return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
+}
+
 function RouteGuard() {
 	const { isAuthenticated, isLoading } = useAuth();
 	const segments = useSegments();
@@ -296,16 +464,14 @@ export default function RootLayout() {
 	});
 
 	if (!fontsLoaded) {
-		return (
-			<View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: COLORS.primary }}>
-				<ActivityIndicator color={COLORS.lightNeutral} />
-			</View>
-		);
+		return null;
 	}
 
 	return (
 		<AuthProvider>
-			<RouteGuard />
+			<FavoritesProvider>
+				<RouteGuard />
+			</FavoritesProvider>
 		</AuthProvider>
 	);
 }

@@ -107,7 +107,7 @@ export default function EditProfileScreen() {
 		<SafeAreaView style={styles.safeArea}>
 			<KeyboardAvoidingView
 				style={styles.keyboard}
-				behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+				behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
 			>
 				<ScrollView
 					contentContainerStyle={styles.container}
