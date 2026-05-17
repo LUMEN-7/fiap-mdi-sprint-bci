@@ -342,6 +342,11 @@ README.md
 
 # Como Rodar o Projeto
 
+> [!NOTE]
+> O projeto utiliza o **Expo SDK 54** para garantir compatibilidade com o **Expo Go** em dispositivos móveis físicos durante os testes e desenvolvimento da aplicação.
+>
+> Isso permite executar o app diretamente no celular sem necessidade de builds nativas locais.
+
 ## Pré-requisitos
 
 - Node.js
