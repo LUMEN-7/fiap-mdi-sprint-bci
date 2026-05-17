@@ -35,14 +35,191 @@ O projeto foi desenvolvido com foco em:
 
 # Funcionalidades
 
--  Busca inteligente de informações técnicas com IA (Llama/Groq)
--  Pesquisa de veículos por nome 
--  Integração com Auto.dev Photos API
--  Comparação entre veículos
--  Sistema de salvos
--  Sistema de anotações com Markdown
--  Perfil do usuário
--  Login e cadastro
+## Autenticação e Sessão
+- Cadastro de usuários
+- Login e logout
+- Sessão persistente com AsyncStorage
+- Edição de perfil
+- Alteração de foto de perfil
+- Redefinição de senha
+- Proteção automática de rotas para usuários não autenticados
+
+### Arquivos relacionados
+```txt
+_layout.js
+login.js
+register.js
+editProfile.js
+password.js
+```
+
+---
+
+## Busca Inteligente de Veículos
+- Pesquisa por nome do veículo
+- Pesquisa direta por VIN
+- Interpretação inteligente de busca via IA
+- Extração automática de:
+  - marca
+  - modelo
+  - versão
+  - ano
+- Fallback automático para fichas técnicas
+
+### Arquivos relacionados
+```txt
+search.js
+llamaApi.js
+```
+
+---
+
+## Integração com Auto.dev API
+- Busca de imagens reais dos veículos
+- Busca de dados automotivos por VIN
+- Resolução automática de galerias
+- Integração com listings automotivos
+
+### Arquivos relacionados
+```txt
+autoDevApi.js
+```
+
+---
+
+## Ficha Técnica Inteligente
+- Geração automática de ficha técnica via IA
+- Estruturação inteligente de dados automotivos
+- Informações detalhadas:
+  - motor
+  - potência
+  - torque
+  - consumo
+  - segurança
+  - tecnologia
+  - conforto
+  - performance
+
+### Arquivos relacionados
+```txt
+llamaApi.js
+information.js
+```
+
+---
+
+## Tela de Informações do Veículo
+- Galeria de imagens
+- Informações técnicas
+- Descrição curta e longa
+- Favoritar veículo
+- Adicionar aos últimos vistos
+- Botão de comparação
+
+### Arquivos relacionados
+```txt
+information.js
+```
+
+---
+
+## Comparação Inteligente de Veículos
+- Seleção de dois modelos
+- Pesquisa dinâmica de veículos
+- Comparação detalhada
+- Resumo inteligente gerado por IA
+- Destaque automático de vantagens
+- Salvamento de comparações
+
+### Arquivos relacionados
+```txt
+compare.js
+detail.js
+```
+
+---
+
+## Favoritos e Salvos
+- Salvar modelos favoritos
+- Salvar comparações
+- Persistência local
+- Gerenciamento de itens salvos
+
+### Arquivos relacionados
+```txt
+_layout.js
+saved.js
+```
+
+---
+
+## Últimos Veículos Visualizados
+- Histórico automático de pesquisas
+- Limite de até 10 veículos
+- Exibição rápida de recentes
+
+### Arquivos relacionados
+```txt
+_layout.js
+search.js
+```
+
+---
+
+## Sistema de Anotações em Markdown
+- Criar notas
+- Pré-visualização em Markdown
+- Exclusão de notas
+- Persistência local temporária
+
+### Arquivos relacionados
+```txt
+notes.js
+```
+
+---
+
+## Navegação e Home
+- Navegação por abas
+- Tela inicial interativa
+- Carrossel automático de destaque
+- Ações rápidas:
+  - perfil
+  - salvos
+  - anotações
+
+### Arquivos relacionados
+```txt
+home.js
+```
+
+---
+
+## UI/UX e Design System
+- Fontes customizadas via Expo Fonts
+- Sistema centralizado de cores
+- Tokens visuais reutilizáveis
+- Interface responsiva
+
+### Arquivos relacionados
+```txt
+theme.js
+```
+
+---
+
+## Integração com APIs Externas
+- Integração com Groq/Llama
+- Integração com Auto.dev
+- Requisições HTTP assíncronas
+- Tratamento de erros
+- Parsing automático de JSON
+
+### Arquivos relacionados
+```txt
+llamaApi.js
+autoDevApi.js
+```
 
 ---
 
@@ -56,10 +233,10 @@ O sistema utiliza IA para:
 - encontrar veículos compatíveis
 - alimentar serviços externos de imagens e dados automotivos
 
-Fluxo da pesquisa:
+Fluxo:
 
 ```txt
-Usuário → IA (Llama/Groq) → VIN → Auto.dev API → Imagens e Dados
+Usuário → Interface → IA (Llama/Groq) → VIN → Auto.dev API → Imagens e Dados
 ```
 
 ---
@@ -67,19 +244,19 @@ Usuário → IA (Llama/Groq) → VIN → Auto.dev API → Imagens e Dados
 # Preview
 
 <p align="start">
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/login.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/cadastro.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/home.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/perfil0.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/perfil.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/redefinicao.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/pesquisa.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/saiba_mais.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/info.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/comparar.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/detalhes.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/notes.jpeg" width="200"/>
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/salvos.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/login.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/cadastro.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/home.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/perfil0.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/perfil.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/redefinicao.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/pesquisa.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/saiba_mais.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/info.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/comparar.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/detalhes.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/notes.jpeg" width="150"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/salvos.jpeg" width="150"/>
 </p>
 
 
@@ -202,29 +379,6 @@ EXPO_PUBLIC_AUTO_DEV_API_KEY=SUA_API_KEY
 ```bash
 npx expo start
 ```
-
----
-
-# Funcionalidades Visuais
-
-## Home dinâmica
-- rotação automática de veículos
-- interface interativa
-- menu flutuante
-
-## Busca inteligente
-- pesquisa por texto
-- IA interpretando veículos
-- imagens reais via API
-
-## Comparação
-- comparação entre modelos
-- seleção dinâmica
-- cards compactos
-
-## Sistema de notas
-- editor de anotações
-- suporte a Markdown
 
 ---
 
