@@ -18,7 +18,7 @@ Plataforma mobile de inteligência competitiva desenvolvida para auxiliar equipe
 
 ---
 
-# 📱 Sobre o Projeto
+# Sobre o Projeto
 
 O **BCI - Beyond Compare Intelligence** é uma aplicação mobile construída com React Native e Expo, focada em pesquisa automotiva inteligente.
 
@@ -33,22 +33,20 @@ O projeto foi desenvolvido com foco em:
 
 ---
 
-# ✨ Funcionalidades
+# Funcionalidades
 
-- 🔍 Busca inteligente com IA (Llama/Groq)
-- 🚘 Pesquisa de veículos por nome ou VIN
-- 📸 Integração com Auto.dev Photos API
-- 📊 Comparação entre veículos
-- ❤️ Sistema de salvos
-- 📝 Sistema de anotações com Markdown
-- 👤 Perfil do usuário
-- 🔐 Login e cadastro
-- 📱 Interface mobile responsiva
-- ⚡ Navegação otimizada com Expo Router
+-  Busca inteligente de informações técnicas com IA (Llama/Groq)
+-  Pesquisa de veículos por nome 
+-  Integração com Auto.dev Photos API
+-  Comparação entre veículos
+-  Sistema de salvos
+-  Sistema de anotações com Markdown
+-  Perfil do usuário
+-  Login e cadastro
 
 ---
 
-# 🧠 Inteligência Artificial
+# Inteligência Artificial
 
 O sistema utiliza IA para:
 
@@ -58,7 +56,7 @@ O sistema utiliza IA para:
 - encontrar veículos compatíveis
 - alimentar serviços externos de imagens e dados automotivos
 
-Fluxo da aplicação:
+Fluxo da pesquisa:
 
 ```txt
 Usuário → IA (Llama/Groq) → VIN → Auto.dev API → Imagens e Dados
@@ -66,7 +64,14 @@ Usuário → IA (Llama/Groq) → VIN → Auto.dev API → Imagens e Dados
 
 ---
 
-# 🛠️ Tecnologias
+# Preview
+
+
+
+
+---
+
+# Tecnologias
 
 ## Frontend
 
@@ -93,11 +98,13 @@ Usuário → IA (Llama/Groq) → VIN → Auto.dev API → Imagens e Dados
 
 ## Design
 
-[![Figma](https://img.shields.io/badge/Figma-8F3985?style=for-the-badge&logo=figma&logoColor=8F3985&labelColor=000000)](https://www.figma.com)
+Conheça o design base da nossa aplicação!
+
+[![Figma](https://img.shields.io/badge/Figma-8F3985?style=for-the-badge&logo=figma&logoColor=8F3985&labelColor=000000)](https://www.figma.com/design/IUr7lhd6lPTnnz91kwbpo9/Ford?node-id=0-1&t=v3MVyi2Z36XYTLXn-1)
 
 ---
 
-# 📂 Estrutura do Projeto
+# Estrutura do Projeto
 
 ```txt
 app/
@@ -139,9 +146,9 @@ README.md
 
 ---
 
-# 🚀 Como Rodar o Projeto
+# Como Rodar o Projeto
 
-## 🔧 Pré-requisitos
+## Pré-requisitos
 
 - Node.js
 - npm ou yarn
@@ -150,7 +157,7 @@ README.md
 
 ---
 
-## 📥 Instalação
+## Instalação
 
 ```bash
 git clone https://github.com/seu-usuario/seu-repo.git
@@ -162,7 +169,7 @@ npm install
 
 ---
 
-## 🔑 Variáveis de Ambiente
+## Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto:
 
@@ -173,13 +180,7 @@ EXPO_PUBLIC_AUTO_DEV_API_KEY=SUA_API_KEY
 
 ---
 
-## ▶️ Execução
-
-```bash
-npm start
-```
-
-ou
+## Execução
 
 ```bash
 npx expo start
@@ -187,47 +188,44 @@ npx expo start
 
 ---
 
-# 📸 Funcionalidades Visuais
+# Funcionalidades Visuais
 
-## 🏠 Home dinâmica
+## Home dinâmica
 - rotação automática de veículos
 - interface interativa
 - menu flutuante
 
-## 🔍 Busca inteligente
+## Busca inteligente
 - pesquisa por texto
 - IA interpretando veículos
 - imagens reais via API
 
-## ⚖️ Comparação
+## Comparação
 - comparação entre modelos
 - seleção dinâmica
 - cards compactos
 
-## 📝 Sistema de notas
+## Sistema de notas
 - editor de anotações
 - suporte a Markdown
 
 ---
 
-# 📈 Roadmap
+# Roadmap
 
-- [x] Estrutura inicial
-- [x] Sistema de autenticação
-- [x] Busca inteligente
-- [x] Integração com IA
-- [x] Integração com Auto.dev
-- [x] Sistema de comparação
-- [x] Sistema de anotações
-- [ ] Comparação avançada
-- [ ] Dashboard analítico
-- [ ] Histórico inteligente
-- [ ] Machine Learning
-- [ ] Deploy
+- [x] Design inicial no Figma
+- [x] Implemntação do layout em React Native
+- [x] Integração com o Llama via Groq para dados das Fichas técnicas
+- [x] Integração com API Auto Dev para Imagens dos modelos
+- [x] Sistema de comparação e análise da IA entre dois modelos
+- [x] Sistema de anotações e salvos
+- [ ] Adicionar informações de ambos os carros na comparação
+- [ ] Integração com IA própria
+- [ ] Implementação de referências, notificações, verificação e biometria
 
 ---
 
-# 🔐 Segurança
+# Segurança
 
 - Uso de variáveis de ambiente
 - Chaves protegidas via `.env`
@@ -236,7 +234,7 @@ npx expo start
 
 ---
 
-# 🤝 Como Contribuir
+# Como Contribuir
 
 1. Faça um Fork do projeto
 2. Crie uma branch
