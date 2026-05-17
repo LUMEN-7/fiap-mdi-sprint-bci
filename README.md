@@ -66,6 +66,23 @@ Usuário → IA (Llama/Groq) → VIN → Auto.dev API → Imagens e Dados
 
 # Preview
 
+<p align="start">
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/login.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/cadastro.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/home.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/perfil0.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/perfil.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/redefinicao.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/pesquisa.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/saiba_mais.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/info.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/comparar.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/detalhes.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/notes.jpeg" width="200"/>
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/preview1/salvos.jpeg" width="200"/>
+</p>
+
+
 
 
 
