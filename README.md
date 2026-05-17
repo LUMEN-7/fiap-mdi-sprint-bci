@@ -1,144 +1,262 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/logo.png" width="200" />
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/logo.png" width="220" />
 </p>
-
 
 # BCI - Beyond Compare Intelligence
 
 <p align="start">
-<b>Plataforma de inteligência competitiva que analisa veículos concorrentes, identifica diferenciais estratégicos e apoia o time na criação de campanhas mais assertivas.</b>
+<b>
+Plataforma mobile de inteligência competitiva desenvolvida para auxiliar equipes estratégicas na análise, comparação e pesquisa de veículos automotivos através de IA e APIs especializadas.
+</b>
 </p>
 
 ---
 
 ![Status](https://img.shields.io/badge/STATUS-EM%20DESENVOLVIMENTO-0562D2?style=for-the-badge&labelColor=00142E)
 ![Version](https://img.shields.io/badge/VERSION-1.0.0-0562D2?style=for-the-badge&labelColor=00142E)
+![Platform](https://img.shields.io/badge/PLATFORM-ANDROID%20%7C%20IOS-0562D2?style=for-the-badge&labelColor=00142E)
 
 ---
 
-## 📸 Preview
+# 📱 Sobre o Projeto
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/user/repo/main/assets/preview1.png" width="400"/>
-  <img src="https://raw.githubusercontent.com/user/repo/main/assets/preview2.png" width="400"/>
-</p>
+O **BCI - Beyond Compare Intelligence** é uma aplicação mobile construída com React Native e Expo, focada em pesquisa automotiva inteligente.
 
----
+A plataforma utiliza inteligência artificial para interpretar buscas, encontrar veículos compatíveis e consumir APIs automotivas externas para exibir informações técnicas, imagens reais e comparações detalhadas entre modelos.
 
-## 🔗 Links úteis
-
-- 📺 [Ver Demo](https://link.com)
-- 📄 [Documentação](https://link.com)
-- 🎨 [Design no Figma](https://figma.com)
+O projeto foi desenvolvido com foco em:
+- experiência visual moderna
+- performance
+- integração com IA
+- pesquisa inteligente
+- comparação estratégica de veículos
 
 ---
 
-## ✨ Funcionalidades
+# ✨ Funcionalidades
 
-- 🔍 Busca inteligente baseada em filtros avançados  
-- 📊 Comparação entre múltiplos itens  
-- ❤️ Sistema de favoritos  
-- 📈 Análise de dados e recomendações  
-- 🔐 Autenticação de usuários  
+- 🔍 Busca inteligente com IA (Llama/Groq)
+- 🚘 Pesquisa de veículos por nome ou VIN
+- 📸 Integração com Auto.dev Photos API
+- 📊 Comparação entre veículos
+- ❤️ Sistema de salvos
+- 📝 Sistema de anotações com Markdown
+- 👤 Perfil do usuário
+- 🔐 Login e cadastro
+- 📱 Interface mobile responsiva
+- ⚡ Navegação otimizada com Expo Router
 
 ---
 
-## 🧱 Arquitetura
+# 🧠 Inteligência Artificial
 
+O sistema utiliza IA para:
+
+- interpretar pesquisas do usuário
+- identificar veículos automaticamente
+- converter buscas em VINs válidos
+- encontrar veículos compatíveis
+- alimentar serviços externos de imagens e dados automotivos
+
+Fluxo da aplicação:
+
+```txt
+Usuário → IA (Llama/Groq) → VIN → Auto.dev API → Imagens e Dados
 ```
-Frontend → API → Banco de Dados
-↓
-Serviços externos
-```
 
 ---
 
-## 🛠️ Tecnologias
+# 🛠️ Tecnologias
 
-### Frontend
+## Frontend
+
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=F7DF1E&labelColor=000000)](https://www.google.com/search?q=javascript)
-[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=3178C6&labelColor=000000)](https://www.google.com/search?q=typescript)
+
 [![React Native](https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=61DAFB&labelColor=000000)](https://www.google.com/search?q=react+native)
+
 [![Expo](https://img.shields.io/badge/Expo-ffffff?style=for-the-badge&logo=expo&logoColor=FFFFFF&labelColor=000000)](https://www.google.com/search?q=expo)
+
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=339933&labelColor=000000)](https://www.google.com/search?q=node+js)
 
-### Backend
-[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=3776AB&labelColor=000000)](https://www.google.com/search?q=python)
-[![C#](https://img.shields.io/badge/C%23-8A2BE2?style=for-the-badge&logo=c&logoColor=8A2BE2&labelColor=000000)](https://www.google.com/search?q=c#)
+---
 
-### Banco de Dados
-[![SQL Server](https://img.shields.io/badge/SQL-FF92C2?style=for-the-badge&logo=databricks&logoColor=FFFFFF&labelColor=000000)](https://www.google.com/search?q=sql_server)
+## APIs & Serviços
+
+### Ficha técnica
+[![Groq](https://img.shields.io/badge/Groq-0562D2?style=for-the-badge&labelColor=000000)](https://groq.com)
 
 
-### Versionamento
-[![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=F05032&labelColor=000000)](https://www.google.com/search?q=git)
-[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=FFFFFF&labelColor=000000)](https://www.google.com/search?q=github)
-
-### Design
-[![Figma](https://img.shields.io/badge/Figma-8F3985?style=for-the-badge&logo=figma&logoColor=8F3985&labelColor=000000)](https://www.figma.com/design/IUr7lhd6lPTnnz91kwbpo9/Ford?node-id=0-1&t=MqtJGy1yJz9UpkKw-1)
+### Imagens
+[![Auto.dev](https://img.shields.io/badge/Auto.dev-0562D2?style=for-the-badge&labelColor=000000)](https://auto.dev)
 
 ---
 
-## 🚀 Como rodar o projeto
+## Design
 
-### 🔧 Pré-requisitos
-- Node.js instalado
+[![Figma](https://img.shields.io/badge/Figma-8F3985?style=for-the-badge&logo=figma&logoColor=8F3985&labelColor=000000)](https://www.figma.com)
+
+---
+
+# 📂 Estrutura do Projeto
+
+```txt
+app/
+├── auth/
+│   ├── login.js
+│   └── register.js
+│
+├── screen/
+│   ├── detail.js
+│   ├── editProfile.js
+│   ├── information.js
+│   ├── notes.js
+│   ├── password.js
+│   ├── profile.js
+│   └── saved.js
+│
+├── tab/
+│   ├── _layout.js
+│   ├── compare.js
+│   ├── home.js
+│   └── search.js
+│
+├── _layout.js
+└── index.js
+
+services/
+├── autoDevApi.js
+└── llamaApi.js
+
+style/
+└── theme.js
+
+assets/
+.env
+app.json
+package.json
+README.md
+```
+
+---
+
+# 🚀 Como Rodar o Projeto
+
+## 🔧 Pré-requisitos
+
+- Node.js
+- npm ou yarn
+- Expo CLI
 - Git
-- Gerenciador de pacotes (npm ou yarn)
 
-### ▶️ Instalação
+---
+
+## 📥 Instalação
 
 ```bash
-git clone https://github.com/user/repo.git
-cd repo
+git clone https://github.com/seu-usuario/seu-repo.git
+
+cd seu-repo
+
 npm install
 ```
-### ▶️ Execução
+
+---
+
+## 🔑 Variáveis de Ambiente
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+EXPO_PUBLIC_GROQ_API_KEY=SUA_API_KEY
+EXPO_PUBLIC_AUTO_DEV_API_KEY=SUA_API_KEY
+```
+
+---
+
+## ▶️ Execução
+
 ```bash
 npm start
 ```
 
----
-
-## 📂 Estrutura do projeto
-
-```
-src/
-├── assets/
-├── components/
-├── screens/
-├── services/
-├── hooks/
-├── utils/
-└── styles/
-```
-
----
-
-## 🧪 Executar Testes
+ou
 
 ```bash
-npm test
+npx expo start
 ```
 
 ---
 
-## 📈 Roadmap
+# 📸 Funcionalidades Visuais
 
-- [x] Estrutura inicial  
-- [x] Sistema de busca  
-- [ ] Comparação avançada  
-- [ ] Machine Learning  
+## 🏠 Home dinâmica
+- rotação automática de veículos
+- interface interativa
+- menu flutuante
+
+## 🔍 Busca inteligente
+- pesquisa por texto
+- IA interpretando veículos
+- imagens reais via API
+
+## ⚖️ Comparação
+- comparação entre modelos
+- seleção dinâmica
+- cards compactos
+
+## 📝 Sistema de notas
+- editor de anotações
+- suporte a Markdown
+
+---
+
+# 📈 Roadmap
+
+- [x] Estrutura inicial
+- [x] Sistema de autenticação
+- [x] Busca inteligente
+- [x] Integração com IA
+- [x] Integração com Auto.dev
+- [x] Sistema de comparação
+- [x] Sistema de anotações
+- [ ] Comparação avançada
+- [ ] Dashboard analítico
+- [ ] Histórico inteligente
+- [ ] Machine Learning
 - [ ] Deploy
 
 ---
 
-## Como Contribuir
+# 🔐 Segurança
 
-1. Fork o projeto
-2. Crie uma branch (feature/minha-feature)
-3. Commit suas mudanças
-4. Push para a branch
+- Uso de variáveis de ambiente
+- Chaves protegidas via `.env`
+- `.env` ignorado no Git
+- Consumo seguro de APIs externas
+
+---
+
+# 🤝 Como Contribuir
+
+1. Faça um Fork do projeto
+2. Crie uma branch
+
+```bash
+git checkout -b feature/minha-feature
+```
+
+3. Commit suas alterações
+
+```bash
+git commit -m "feat: minha feature"
+```
+
+4. Push para o repositório
+
+```bash
+git push origin feature/minha-feature
+```
+
 5. Abra um Pull Request
 
 ---
@@ -150,8 +268,14 @@ npm test
 
 | Foto | Nome | RM |
 |------|------|----|
-| <img src="https://avatars.githubusercontent.com/AnaTorresLoureiro" width="80" style="border-radius:50%;"> | [Ana Laura Torres Loureiro](https://github.com/AnaTorresLoureiro) | RM 554375 |
-| <img src="https://avatars.githubusercontent.com/MuriloCngp" width="80" style="border-radius:50%;"> | [Murilo Cordeiro Ferreira](https://github.com/MuriloCngp) | RM 556727 |
-| <img src="https://avatars.githubusercontent.com/Geronimo-augusto" width="80" style="border-radius:50%;"> | [Geronimo Augusto Nascimento Santos](https://github.com/Geronimo-augusto) | RM 557170 |
-| <img src="https://avatars.githubusercontent.com/iannyrfs" width="80" style="border-radius:50%;"> | [Ianny Raquel Ferreira De Souza](https://github.com/iannyrfs) | RM 559096 |
-| <img src="https://avatars.githubusercontent.com/Vitorr-AF" width="80" style="border-radius:50%;"> | [Vitor Augusto França de Oliveira](https://github.com/Vitorr-AF) | RM 555469 |
+| <img src="https://avatars.githubusercontent.com/AnaTorresLoureiro" width="80"> | [Ana Laura Torres Loureiro](https://github.com/AnaTorresLoureiro) | RM 554375 |
+| <img src="https://avatars.githubusercontent.com/MuriloCngp" width="80"> | [Murilo Cordeiro Ferreira](https://github.com/MuriloCngp) | RM 556727 |
+| <img src="https://avatars.githubusercontent.com/Geronimo-augusto" width="80"> | [Geronimo Augusto Nascimento Santos](https://github.com/Geronimo-augusto) | RM 557170 |
+| <img src="https://avatars.githubusercontent.com/iannyrfs" width="80"> | [Ianny Raquel Ferreira De Souza](https://github.com/iannyrfs) | RM 559096 |
+| <img src="https://avatars.githubusercontent.com/Vitorr-AF" width="80"> | [Vitor Augusto França de Oliveira](https://github.com/Vitorr-AF) | RM 555469 |
+
+---
+
+<p align="center">
+  Built Beyond Comparison 🚘
+</p>
