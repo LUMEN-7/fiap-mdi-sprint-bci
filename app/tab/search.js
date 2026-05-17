@@ -14,42 +14,16 @@ import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 
 import { COLORS, FONT } from '../../style/theme';
-import { useFavorites } from '../_layout';
+import { useFavorites, useRecentViews } from '../_layout';
+import { getFichaTecnica, interpretarBuscaVeiculo } from '../../services/llamaApi';
+import {
+	fetchAutoDevVehicleByVin,
+	isVin,
+	resolveVehicleSearchToPhotos,
+} from '../../services/autoDevApi';
 
-const cars = [
-	{
-		id: '1',
-		brand: 'Ford',
-		name: 'Mustang 2026',
-		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/mustang.png',
-	},
-	{
-		id: '2',
-		brand: 'Ford',
-		name: 'Bronco Sport',
-		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/bronco1.png',
-	},
-	{
-		id: '3',
-		brand: 'Ford',
-		name: 'Maverick',
-		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/carro.png',
-	},
-	{
-		id: '4',
-		brand: 'Ford',
-		name: 'Expedition',
-		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/expedtion.png',
-	},
-	{
-		id: '5',
-		brand: 'Ford',
-		name: 'Bronco',
-		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/bronco2.png',
-	},
-];
-
-const lastSeenCars = [cars[0], cars[1], cars[2]];
+// Data is fetched from the API via `getFichaTecnica`.
+// No local mock data.
 
 function normalizeText(text) {
 	return text
@@ -60,42 +34,139 @@ function normalizeText(text) {
 }
 
 function searchCars(searchText) {
-	const normalizedSearch = normalizeText(searchText);
+	// Keep existing normalization utility but searching will be done
+	// via API when the user submits the query.
+	return [];
+}
 
-	if (!normalizedSearch) {
-		return [];
-	}
-
-	const searchWords = normalizedSearch.split(/\s+/);
-
-	return cars.filter((car) => {
-		const searchableText = normalizeText(
-			`${car.brand} ${car.name}`
-		);
-
-		const searchableWords =
-			searchableText.split(/\s+/);
-
-		return searchWords.every((word) =>
-			searchableWords.some(
-				(carWord) => carWord === word
-			)
-		);
-	});
+function getSpecsFromFicha(ficha) {
+	return {
+		engine: String(ficha?.resumo_rapido?.motor || ficha?.engine || 'N/D'),
+		power: String(ficha?.resumo_rapido?.potencia || ficha?.power || 'N/D'),
+		type: String(ficha?.resumo_rapido?.tipo || ficha?.type || 'N/D'),
+	};
 }
 
 export default function SearchScreen() {
 	const router = useRouter();
 	const { isFavorite, toggleFavorite } = useFavorites();
+	const { recentViews } = useRecentViews();
 
 	const [search, setSearch] = useState('');
+	const [loading, setLoading] = useState(false);
+	const [results, setResults] = useState([]);
 
 	const hasSearch = search.trim().length > 0;
-	const filteredCars = searchCars(search);
+	const dataToShow = hasSearch ? results : [];
+	const recentViewedCars = recentViews.slice(0, 10);
 
-	const dataToShow = hasSearch
-		? filteredCars
-		: lastSeenCars;
+	function handleSearchChange(text) {
+		setSearch(text);
+		setResults([]);
+		setLoading(false);
+	}
+
+	async function handleSearchSubmit() {
+		const raw = search.trim();
+		if (!raw) return setResults([]);
+
+		setLoading(true);
+		try {
+			if (isVin(raw)) {
+				const { vehicle, retailPhotos } = await fetchAutoDevVehicleByVin(raw);
+				const resolvedVehicle = vehicle?.vehicle || vehicle;
+				const vehicleLabel = [
+					resolvedVehicle?.year || vehicle?.year,
+					resolvedVehicle?.make || vehicle?.make,
+					resolvedVehicle?.model || vehicle?.model,
+					resolvedVehicle?.trim || vehicle?.trim,
+				]
+					.filter(Boolean)
+					.join(' ')
+					.trim();
+
+				const photoCards = (retailPhotos || []).slice(0, 12).map((photoUrl, index) => ({
+					id: `${raw}-${index}`,
+					vin: raw,
+					brand: resolvedVehicle?.make || vehicle?.make,
+					name: vehicleLabel || raw,
+					image: photoUrl,
+					rawFicha: vehicle,
+					photoGallery: retailPhotos || [],
+					...getSpecsFromFicha(vehicle),
+				}));
+
+				setResults(
+					photoCards.length > 0
+						? photoCards
+						: [
+							{
+								id: raw,
+								vin: raw,
+								brand: resolvedVehicle?.make || vehicle?.make,
+								name: vehicleLabel || raw,
+								image: '',
+								rawFicha: vehicle,
+								photoGallery: retailPhotos || [],
+								...getSpecsFromFicha(vehicle),
+							},
+						]
+				);
+
+				return;
+			}
+
+			const parsed = await interpretarBuscaVeiculo(raw);
+			const resolved = await resolveVehicleSearchToPhotos(parsed);
+
+			if (resolved.length > 0) {
+				setResults(
+					resolved.map((car) => ({
+						id: car.vin,
+						vin: car.vin,
+						brand: car.marca || parsed.marca,
+						name: [car.modelo, car.versao, car.ano]
+							.filter(Boolean)
+							.join(' ')
+							.trim(),
+						image: car.imagem,
+						rawFicha: car.vehicle,
+						photoGallery: car.galeria,
+						...getSpecsFromFicha(car.vehicle),
+					}))
+				);
+				return;
+			}
+
+			// Fallback: keep the previous summary flow when the VIN-based lookup does not resolve.
+			const [brand, ...rest] = raw.split(/\s+/);
+			const model = rest.join(' ');
+			const ficha = await getFichaTecnica(brand, model || brand);
+
+			const imageUrl =
+				ficha?.imagem_sugerida &&
+				ficha.imagem_sugerida !== 'Não disponível' &&
+				String(ficha.imagem_sugerida).startsWith('http')
+					? String(ficha.imagem_sugerida).trim()
+					: '';
+
+			setResults([
+				{
+					id: `${ficha.marca}-${ficha.modelo}-${ficha.versao || ''}`,
+					brand: ficha.marca,
+					name: `${ficha.modelo} ${ficha.versao || ''}`.trim(),
+					image: imageUrl,
+					rawFicha: ficha,
+					...getSpecsFromFicha(ficha),
+				},
+			]);
+		} catch (err) {
+			console.warn('Erro na busca:', err.message || err);
+			setResults([]);
+		} finally {
+			setLoading(false);
+		}
+	}
 
 	function goToInformation(car) {
 		router.push({
@@ -105,6 +176,8 @@ export default function SearchScreen() {
 				brand: car.brand,
 				name: car.name,
 				image: car.image,
+				vin: car.vin || car.id,
+				photoGallery: car.photoGallery ? JSON.stringify(car.photoGallery) : undefined,
 			},
 		});
 	}
@@ -117,9 +190,7 @@ export default function SearchScreen() {
 					</Text>
 
 					<TouchableOpacity
-						onPress={() =>
-							toggleFavorite(item.id)
-						}
+						onPress={() => toggleFavorite(item)}
 					>
 						<Ionicons
 							name={
@@ -133,10 +204,24 @@ export default function SearchScreen() {
 					</TouchableOpacity>
 				</View>
 
-				<Image
-					source={{ uri: item.image }}
-					style={styles.carImage}
-				/>
+				{item.image ? (
+					<Image
+						source={{ uri: item.image }}
+						style={styles.carImage}
+						resizeMode="contain"
+						onError={(error) => {
+							console.log('Erro ao carregar imagem:', item.image, error.nativeEvent);
+						}}
+					/>
+				) : (
+					<View style={styles.carImageFallback}>
+						<Ionicons
+							name="car-sport-outline"
+							size={44}
+							color={COLORS.primary}
+						/>
+					</View>
+				)}
 
 				<Text style={styles.carName}>
 					{item.name}
@@ -153,6 +238,37 @@ export default function SearchScreen() {
 					</Text>
 				</TouchableOpacity>
 			</View>
+		);
+	}
+
+	function renderRecentItem(car) {
+		return (
+			<TouchableOpacity
+				key={car.id}
+				style={styles.recentCard}
+				onPress={() => goToInformation(car)}
+			>
+				{car.image ? (
+					<Image
+						source={{ uri: car.image }}
+						style={styles.recentImage}
+						resizeMode="contain"
+					/>
+				) : (
+					<View style={styles.recentImageFallback}>
+						<Ionicons
+							name="car-sport-outline"
+							size={32}
+							color={COLORS.primary}
+						/>
+					</View>
+				)}
+
+				<Text style={styles.recentBrand}>{car.brand}</Text>
+				<Text style={styles.recentName} numberOfLines={2}>
+					{car.name}
+				</Text>
+			</TouchableOpacity>
 		);
 	}
 
@@ -181,13 +297,18 @@ export default function SearchScreen() {
 						placeholder="Ex: Ford Mustang"
 						placeholderTextColor="rgba(0,0,0,0.45)"
 						value={search}
-						onChangeText={setSearch}
+						onChangeText={handleSearchChange}
+						onSubmitEditing={handleSearchSubmit}
 						autoCapitalize="none"
 					/>
 
 					{hasSearch ? (
 						<TouchableOpacity
-							onPress={() => setSearch('')}
+							onPress={() => {
+								setSearch('');
+								setResults([]);
+								setLoading(false);
+							}}
 						>
 							<Ionicons
 								name="close-circle"
@@ -206,53 +327,72 @@ export default function SearchScreen() {
 					contentContainerStyle={styles.list}
 					showsVerticalScrollIndicator={false}
 					renderItem={renderCarCard}
-					ListHeaderComponent={
-						!hasSearch ? (
-							<>
-								<View style={styles.emptyStart}>
-									<Ionicons
-										name="search-outline"
-										size={42}
-										color={COLORS.primary}
-									/>
-
-									<Text style={styles.emptyTitle}>
-										Pesquise um modelo
-									</Text>
-
-									<Text style={styles.emptyText}>
-										Digite uma marca ou modelo
-										para visualizar os
-										resultados.
+					ListFooterComponent={
+						!hasSearch && recentViewedCars.length > 0 ? (
+							<View style={styles.recentSection}>
+								<View style={styles.recentSectionHeader}>
+									<Text style={styles.sectionTitle}>Últimos vistos</Text>
+									<Text style={styles.recentSectionCount}>
+										{recentViewedCars.length} itens
 									</Text>
 								</View>
 
-								<Text style={styles.sectionTitle}>
-									Últimos vistos
-								</Text>
-							</>
+								<FlatList
+									horizontal
+									data={recentViewedCars}
+									keyExtractor={(item) => item.id}
+									renderItem={({ item }) => renderRecentItem(item)}
+									showsHorizontalScrollIndicator={false}
+									contentContainerStyle={styles.recentList}
+									ItemSeparatorComponent={() => <View style={styles.recentSeparator} />}
+								/>
+							</View>
 						) : null
 					}
 					ListEmptyComponent={
 						hasSearch ? (
 							<View style={styles.empty}>
+								{loading ? (
+									<Text style={styles.emptyTitle}>Buscando...</Text>
+								) : (
+									<>
+										<Ionicons
+											name="car-sport-outline"
+											size={42}
+											color={COLORS.primary}
+										/>
+
+										<Text style={styles.emptyTitle}>
+											Modelo não encontrado
+										</Text>
+
+										<Text style={styles.emptyText}>
+											Confira se a marca ou o
+											modelo foram digitados
+											corretamente.
+										</Text>
+									</>
+								)}
+							</View>
+						) : (
+							<View style={styles.emptyStart}>
 								<Ionicons
-									name="car-sport-outline"
+									name="search-outline"
 									size={42}
 									color={COLORS.primary}
 								/>
 
 								<Text style={styles.emptyTitle}>
-									Modelo não encontrado
+									Pesquise um modelo
 								</Text>
 
 								<Text style={styles.emptyText}>
-									Confira se a marca ou o
-									modelo foram digitados
-									corretamente.
+									Digite uma marca ou modelo
+									para visualizar os
+									resultados.
 								</Text>
 							</View>
-						) : null
+						)
 					}
 				/>
 			</View>
@@ -315,6 +455,72 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 	},
 
+	recentSection: {
+		marginBottom: 18,
+	},
+
+	recentSectionHeader: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
+		marginBottom: 12,
+	},
+
+	recentSectionCount: {
+		fontFamily: FONT.body,
+		fontSize: 11,
+		color: COLORS.darkGrey,
+		opacity: 0.75,
+	},
+
+	recentList: {
+		paddingRight: 8,
+	},
+
+	recentSeparator: {
+		width: 12,
+	},
+
+	recentCard: {
+		width: 148,
+		padding: 12,
+		borderRadius: 16,
+		borderWidth: 1,
+		borderColor: 'rgba(0,0,0,0.12)',
+		backgroundColor: COLORS.lightNeutral,
+	},
+
+	recentImage: {
+		width: '100%',
+		height: 78,
+		marginBottom: 8,
+	},
+
+	recentImageFallback: {
+		width: '100%',
+		height: 78,
+		marginBottom: 8,
+		alignItems: 'center',
+		justifyContent: 'center',
+		backgroundColor: 'rgba(0,0,0,0.04)',
+		borderRadius: 10,
+	},
+
+	recentBrand: {
+		fontFamily: FONT.bodyBold,
+		fontSize: 10,
+		color: COLORS.primary,
+		textTransform: 'uppercase',
+	},
+
+	recentName: {
+		fontFamily: FONT.bodyBold,
+		fontSize: 12,
+		color: COLORS.primary,
+		marginTop: 4,
+		textTransform: 'uppercase',
+	},
+
 	list: {
 		paddingBottom: 140,
 	},
@@ -326,7 +532,7 @@ const styles = StyleSheet.create({
 
 	card: {
 		width: '48%',
-		height: 190,
+		minHeight: 200,
 		borderWidth: 1,
 		borderColor: 'rgba(0,0,0,0.15)',
 		borderRadius: 16,
@@ -349,14 +555,21 @@ const styles = StyleSheet.create({
 
 	carImage: {
 		width: '100%',
-		height: 70,
-		resizeMode: 'contain',
+		height: 90,
 		marginTop: 6,
+	},
+
+	carImageFallback: {
+		width: '100%',
+		height: 90,
+		marginTop: 6,
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 
 	carName: {
 		fontFamily: FONT.bodyBold,
-		fontSize: 12,
+		fontSize: 10,
 		color: COLORS.primary,
 		textTransform: 'uppercase',
 		marginTop: 8,

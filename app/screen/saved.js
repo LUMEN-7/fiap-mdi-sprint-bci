@@ -13,32 +13,25 @@ import { useRouter } from 'expo-router';
 
 import { COLORS, FONT } from '../../style/theme';
 import { useFavorites } from '../_layout';
-import { getCarModel } from '../data/carModels';
 
 export default function SavedScreen() {
 	const router = useRouter();
 	const [activeTab, setActiveTab] = useState('models');
-	const { favoriteIds, toggleFavorite, favoriteComparisons } = useFavorites();
+	const { favoriteCars, toggleFavorite, favoriteComparisons } = useFavorites();
 
 	const savedModels = useMemo(
-		() =>
-			favoriteIds.map((id) => {
-				const car = getCarModel(id);
-				const specsByLabel = Object.fromEntries(
-					car.specs.map((spec) => [spec.label, spec.value])
-				);
-
-				return {
-					id: car.id,
-					name: car.name,
-					brand: car.brand,
-					image: car.image,
-					engine: specsByLabel.Motor || '-',
-					power: specsByLabel.Potencia || '-',
-					type: specsByLabel.Tipo || '-',
-				};
-			}),
-		[favoriteIds]
+		() => {
+			return (favoriteCars || []).map((car) => ({
+				id: car.id,
+				name: car.name || 'Modelo salvo',
+				brand: car.brand || '-',
+				image: car.image || '',
+				engine: car.engine || '-',
+				power: car.power || '-',
+				type: car.type || '-',
+			}));
+		},
+		[favoriteCars]
 	);
 
 	function handleOpenDetails(car) {
@@ -163,11 +156,24 @@ export default function SavedScreen() {
 						) : (
 							savedModels.map((car) => (
 								<View key={car.id} style={styles.modelCard}>
-									<Image
-										source={{ uri: car.image }}
-										style={styles.carImage}
-										resizeMode="contain"
-									/>
+									<View style={styles.cardImageWrapper}>
+										<Image
+											source={{ uri: car.image }}
+											style={styles.carImage}
+											resizeMode="contain"
+										/>
+
+										<TouchableOpacity
+											style={styles.bookmarkButton}
+											onPress={() => toggleFavorite(car)}
+										>
+											<Ionicons
+												name="star"
+												size={22}
+												color={COLORS.secondary}
+											/>
+										</TouchableOpacity>
+									</View>
 
 									<View style={styles.cardContent}>
 										<View style={styles.cardHeader}>
@@ -179,47 +185,10 @@ export default function SavedScreen() {
 													{car.brand}
 												</Text>
 											</View>
-
-											<TouchableOpacity
-												style={styles.bookmarkButton}
-												onPress={() => toggleFavorite(car.id)}
-											>
-												<Ionicons
-													name="star"
-													size={22}
-													color={COLORS.secondary}
-												/>
-											</TouchableOpacity>
 										</View>
 
-										<View style={styles.infoGrid}>
-											<View style={styles.infoItem}>
-												<Text style={styles.infoLabel}>
-													Motor
-												</Text>
-												<Text style={styles.infoValue}>
-													{car.engine}
-												</Text>
-											</View>
 
-											<View style={styles.infoItem}>
-												<Text style={styles.infoLabel}>
-													Potência
-												</Text>
-												<Text style={styles.infoValue}>
-													{car.power}
-												</Text>
-											</View>
 
-											<View style={styles.infoItem}>
-												<Text style={styles.infoLabel}>
-													Tipo
-												</Text>
-												<Text style={styles.infoValue}>
-													{car.type}
-												</Text>
-											</View>
-										</View>
 
 										<TouchableOpacity
 											style={styles.detailsButton}
@@ -423,6 +392,10 @@ const styles = StyleSheet.create({
 		overflow: 'hidden',
 	},
 
+	cardImageWrapper: {
+		position: 'relative',
+	},
+
 	carImage: {
 		width: '100%',
 		height: 150,
@@ -454,12 +427,16 @@ const styles = StyleSheet.create({
 	},
 
 	bookmarkButton: {
+		position: 'absolute',
+		top: 12,
+		right: 12,
 		width: 42,
 		height: 42,
 		borderRadius: 999,
-		backgroundColor: 'rgba(255,255,255,0.1)',
+		backgroundColor: 'rgba(0,0,0,0.28)',
 		alignItems: 'center',
 		justifyContent: 'center',
+		zIndex: 2,
 	},
 
 	infoGrid: {

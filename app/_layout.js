@@ -10,10 +10,13 @@ import { COLORS } from '../style/theme';
 
 const AuthContext = createContext(null);
 const FavoritesContext = createContext(null);
+const RecentViewsContext = createContext(null);
 const SESSION_STORAGE_KEY = 'userSession';
 const USERS_STORAGE_KEY = 'users';
 const FAVORITES_STORAGE_KEY = 'favoriteCarIds';
+const FAVORITE_CARS_STORAGE_KEY = 'favoriteCarRecords';
 const FAVORITE_COMPARISONS_STORAGE_KEY = 'favoriteComparisons';
+const RECENT_VIEWS_STORAGE_KEY = 'recentViewedCars';
 
 function normalizeEmail(email) {
 	return String(email || '').trim().toLowerCase();
@@ -53,6 +56,16 @@ export function useFavorites() {
 
 	if (!context) {
 		throw new Error('useFavorites must be used within FavoritesProvider');
+	}
+
+	return context;
+}
+
+export function useRecentViews() {
+	const context = useContext(RecentViewsContext);
+
+	if (!context) {
+		throw new Error('useRecentViews must be used within RecentViewsProvider');
 	}
 
 	return context;
@@ -272,6 +285,7 @@ function AuthProvider({ children }) {
 
 function FavoritesProvider({ children }) {
 	const [favoriteIds, setFavoriteIds] = useState([]);
+	const [favoriteCars, setFavoriteCars] = useState([]);
 	const [favoriteComparisons, setFavoriteComparisons] = useState([]);
 	const [isFavoritesLoading, setIsFavoritesLoading] = useState(true);
 
@@ -279,7 +293,9 @@ function FavoritesProvider({ children }) {
 		const loadFavorites = async () => {
 			try {
 				const favoritesRaw = await AsyncStorage.getItem(FAVORITES_STORAGE_KEY);
+				const favoriteCarsRaw = await AsyncStorage.getItem(FAVORITE_CARS_STORAGE_KEY);
 				const parsedFavorites = favoritesRaw ? JSON.parse(favoritesRaw) : [];
+				const parsedFavoriteCars = favoriteCarsRaw ? JSON.parse(favoriteCarsRaw) : [];
 				const comparisonsRaw = await AsyncStorage.getItem(FAVORITE_COMPARISONS_STORAGE_KEY);
 				const parsedComparisons = comparisonsRaw ? JSON.parse(comparisonsRaw) : [];
 
@@ -289,6 +305,25 @@ function FavoritesProvider({ children }) {
 					setFavoriteIds([]);
 				}
 
+				if (Array.isArray(parsedFavoriteCars)) {
+					setFavoriteCars(
+						parsedFavoriteCars
+							.filter((car) => car && car.id)
+							.map((car) => ({
+								id: String(car.id),
+								brand: String(car.brand || ''),
+								name: String(car.name || ''),
+								image: String(car.image || ''),
+								engine: String(car.engine || ''),
+								power: String(car.power || ''),
+								type: String(car.type || ''),
+								photoGallery: Array.isArray(car.photoGallery) ? car.photoGallery : [],
+							}))
+					);
+				} else {
+					setFavoriteCars([]);
+				}
+
 				if (Array.isArray(parsedComparisons)) {
 					setFavoriteComparisons(parsedComparisons);
 				} else {
@@ -296,6 +331,7 @@ function FavoritesProvider({ children }) {
 				}
 			} catch {
 				setFavoriteIds([]);
+				setFavoriteCars([]);
 				setFavoriteComparisons([]);
 			} finally {
 				setIsFavoritesLoading(false);
@@ -316,6 +352,17 @@ function FavoritesProvider({ children }) {
 		});
 	};
 
+	const updateFavoriteCars = (updater) => {
+		setFavoriteCars((currentFavoriteCars) => {
+			const nextFavoriteCars = updater(currentFavoriteCars);
+			void AsyncStorage.setItem(
+				FAVORITE_CARS_STORAGE_KEY,
+				JSON.stringify(nextFavoriteCars)
+			);
+			return nextFavoriteCars;
+		});
+	};
+
 	const updateFavoriteComparisons = (updater) => {
 		setFavoriteComparisons((currentComparisons) => {
 			const nextComparisons = updater(currentComparisons);
@@ -327,13 +374,58 @@ function FavoritesProvider({ children }) {
 		});
 	};
 
-	const toggleFavorite = (id) => {
-		const normalizedId = String(id);
+	const resolveFavoriteCar = (idOrCar) => {
+		if (idOrCar && typeof idOrCar === 'object') {
+			const rawFicha = idOrCar.rawFicha || {};
+			const resumoRapido = rawFicha?.resumo_rapido || {};
+			return {
+				id: String(idOrCar.id),
+				brand: String(idOrCar.brand || ''),
+				name: String(idOrCar.name || ''),
+				image: String(idOrCar.image || ''),
+				engine: String(idOrCar.engine || resumoRapido.motor || ''),
+				power: String(idOrCar.power || resumoRapido.potencia || ''),
+				type: String(idOrCar.type || resumoRapido.tipo || ''),
+				photoGallery: Array.isArray(idOrCar.photoGallery)
+					? idOrCar.photoGallery.filter(Boolean)
+					: [],
+			};
+		}
+
+		const normalizedId = String(idOrCar || '');
+		return {
+			id: normalizedId,
+			brand: '',
+			name: 'Modelo salvo',
+			image: '',
+			engine: '',
+			power: '',
+			type: '',
+			photoGallery: [],
+		};
+	};
+
+	const toggleFavorite = (idOrCar) => {
+		const normalizedId = String(
+			idOrCar && typeof idOrCar === 'object' ? idOrCar.id : idOrCar
+		);
+		const favoriteRecord = resolveFavoriteCar(idOrCar);
 
 		updateFavorites((currentFavorites) => {
 			if (currentFavorites.includes(normalizedId)) {
+				updateFavoriteCars((currentFavoriteCars) =>
+					currentFavoriteCars.filter((car) => String(car.id) !== normalizedId)
+				);
 				return currentFavorites.filter((item) => item !== normalizedId);
 			}
+
+			updateFavoriteCars((currentFavoriteCars) => {
+				const nextFavoriteCars = [
+					favoriteRecord,
+					...currentFavoriteCars.filter((car) => String(car.id) !== normalizedId),
+				];
+				return nextFavoriteCars;
+			});
 
 			return [...currentFavorites, normalizedId];
 		});
@@ -346,10 +438,20 @@ function FavoritesProvider({ children }) {
 			const alreadyFavorite = currentFavorites.includes(normalizedId);
 
 			if (shouldFavorite && !alreadyFavorite) {
+				updateFavoriteCars((currentFavoriteCars) => {
+					const resolved = resolveFavoriteCar(id);
+					return [
+						resolved,
+						...currentFavoriteCars.filter((car) => String(car.id) !== normalizedId),
+					];
+				});
 				return [...currentFavorites, normalizedId];
 			}
 
 			if (!shouldFavorite && alreadyFavorite) {
+				updateFavoriteCars((currentFavoriteCars) =>
+					currentFavoriteCars.filter((car) => String(car.id) !== normalizedId)
+				);
 				return currentFavorites.filter((item) => item !== normalizedId);
 			}
 
@@ -410,6 +512,7 @@ function FavoritesProvider({ children }) {
 	const value = useMemo(
 		() => ({
 			favoriteIds,
+			favoriteCars,
 			favoriteComparisons,
 			isFavoritesLoading,
 			toggleFavorite,
@@ -418,10 +521,79 @@ function FavoritesProvider({ children }) {
 			toggleComparisonFavorite,
 			isComparisonFavorite,
 		}),
-		[favoriteComparisons, favoriteIds, isFavoritesLoading]
+		[favoriteCars, favoriteComparisons, favoriteIds, isFavoritesLoading]
 	);
 
 	return <FavoritesContext.Provider value={value}>{children}</FavoritesContext.Provider>;
+}
+
+function RecentViewsProvider({ children }) {
+	const [recentViews, setRecentViews] = useState([]);
+	const [isRecentViewsLoading, setIsRecentViewsLoading] = useState(true);
+
+	useEffect(() => {
+		const loadRecentViews = async () => {
+			try {
+				const recentRaw = await AsyncStorage.getItem(RECENT_VIEWS_STORAGE_KEY);
+				const parsedRecent = recentRaw ? JSON.parse(recentRaw) : [];
+
+				if (Array.isArray(parsedRecent)) {
+					setRecentViews(parsedRecent.slice(0, 10));
+				} else {
+					setRecentViews([]);
+				}
+			} catch {
+				setRecentViews([]);
+			} finally {
+				setIsRecentViewsLoading(false);
+			}
+		};
+
+		loadRecentViews();
+	}, []);
+
+	const addRecentView = (car) => {
+		if (!car?.id) return;
+
+		const normalizedCar = {
+			id: String(car.id),
+			brand: String(car.brand || ''),
+			name: String(car.name || ''),
+			image: String(car.image || ''),
+			visitedAt: new Date().toISOString(),
+		};
+
+		setRecentViews((currentViews) => {
+			const nextViews = [
+				normalizedCar,
+				...currentViews.filter((item) => String(item.id) !== normalizedCar.id),
+			].slice(0, 10);
+
+			void AsyncStorage.setItem(
+				RECENT_VIEWS_STORAGE_KEY,
+				JSON.stringify(nextViews)
+			);
+
+			return nextViews;
+		});
+	};
+
+	const clearRecentViews = () => {
+		setRecentViews([]);
+		void AsyncStorage.removeItem(RECENT_VIEWS_STORAGE_KEY);
+	};
+
+	const value = useMemo(
+		() => ({
+			recentViews,
+			isRecentViewsLoading,
+			addRecentView,
+			clearRecentViews,
+		}),
+		[recentViews, isRecentViewsLoading]
+	);
+
+	return <RecentViewsContext.Provider value={value}>{children}</RecentViewsContext.Provider>;
 }
 
 function RouteGuard() {
@@ -470,7 +642,9 @@ export default function RootLayout() {
 	return (
 		<AuthProvider>
 			<FavoritesProvider>
-				<RouteGuard />
+				<RecentViewsProvider>
+					<RouteGuard />
+				</RecentViewsProvider>
 			</FavoritesProvider>
 		</AuthProvider>
 	);

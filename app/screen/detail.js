@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 
 import {
 	View,
@@ -17,8 +17,15 @@ import {
 import { useRouter, useLocalSearchParams } from 'expo-router';
 
 import { COLORS, FONT } from '../../style/theme';
-import { getCarModel, getComparisonSummary } from '../data/carModels';
+import { getFichaTecnica, compararCarros } from '../../services/llamaApi';
 import { useFavorites } from '../_layout';
+
+function resolveImage(suggested, brand, model) {
+	if (!suggested && !brand && !model) return '';
+	if (typeof suggested === 'string' && suggested.startsWith('http')) return suggested;
+	const query = (suggested || `${brand} ${model}`).trim();
+	return `https://source.unsplash.com/800x600/?${encodeURIComponent(query)}`;
+}
 
 export default function CompareDetailScreen() {
 	const router = useRouter();
@@ -49,34 +56,61 @@ export default function CompareDetailScreen() {
 		);
 	}
 
-	const firstCar = useMemo(() => {
-		const car = getCarModel(firstCarId || '1');
+	const [firstCar, setFirstCar] = useState({
+		id: firstCarId || '',
+		brand: firstCarBrand || '',
+		name: firstCarName || '',
+		image: firstCarImage || '',
+		sections: [],
+	});
 
-		return {
-			...car,
-			brand: String(firstCarBrand || car.brand),
-			name: String(firstCarName || car.name),
-			image: String(firstCarImage || car.image),
-		};
-	}, [firstCarBrand, firstCarId, firstCarImage, firstCarName]);
+	const [secondCar, setSecondCar] = useState({
+		id: secondCarId || '',
+		brand: secondCarBrand || '',
+		name: secondCarName || '',
+		image: secondCarImage || '',
+		sections: [],
+	});
 
-	const secondCar = useMemo(() => {
-		const car = getCarModel(secondCarId || '2');
+	const [loadingFicha, setLoadingFicha] = useState(false);
+	const [comparisonSummary, setComparisonSummary] = useState('');
 
-		return {
-			...car,
-			brand: String(secondCarBrand || car.brand),
-			name: String(secondCarName || car.name),
-			image: String(secondCarImage || car.image),
-		};
-	}, [secondCarBrand, secondCarId, secondCarImage, secondCarName]);
+	// Load fichas técnicas and comparison from API
+	async function loadComparisonData() {
+		setLoadingFicha(true);
+		try {
+			const [f1, f2] = await Promise.all([
+				getFichaTecnica(firstCar.brand || firstCarId, firstCar.name || firstCarId),
+				getFichaTecnica(secondCar.brand || secondCarId, secondCar.name || secondCarId),
+			]);
 
-	const areComparedCarsFavorite =
-		isFavorite(firstCar.id) && isFavorite(secondCar.id);
-	const isCurrentComparisonFavorite = isComparisonFavorite(
-		firstCar.id,
-		secondCar.id
-	);
+			setFirstCar((prev) => ({ ...prev, raw: f1, sections: f1.sections || [], modelo: f1.modelo || prev.name }));
+			setSecondCar((prev) => ({ ...prev, raw: f2, sections: f2.sections || [], modelo: f2.modelo || prev.name }));
+
+			try {
+				const comp = await compararCarros(
+					{ marca: f1.marca, modelo: f1.modelo, versao: f1.versao },
+					{ marca: f2.marca, modelo: f2.modelo, versao: f2.versao }
+				);
+
+				setComparisonSummary(comp.resumo_final || comp.titulo || 'Comparação disponível');
+			} catch (err) {
+				console.warn('Erro ao comparar carros:', err.message || err);
+				setComparisonSummary('Não foi possível gerar resumo da comparação.');
+			}
+		} catch (err) {
+			console.warn('Erro ao carregar fichas:', err.message || err);
+		} finally {
+			setLoadingFicha(false);
+		}
+	}
+
+	useEffect(() => {
+		loadComparisonData();
+	}, []);
+
+	const areComparedCarsFavorite = isFavorite(firstCar.id) && isFavorite(secondCar.id);
+	const isCurrentComparisonFavorite = isComparisonFavorite(firstCar.id, secondCar.id);
 
 	function handleToggleComparisonFavorite() {
 		toggleComparisonFavorite({
@@ -89,7 +123,7 @@ export default function CompareDetailScreen() {
 		setFavorite(secondCar.id, nextFavoriteValue);
 	}
 
-	const comparisonSummary = getComparisonSummary(firstCar.id, secondCar.id);
+	// `comparisonSummary` populated from API
 
 	const sections = firstCar.sections.map((section) => {
 		const matchingSection =
@@ -153,11 +187,11 @@ export default function CompareDetailScreen() {
 			<View style={styles.hero}>
 				<View style={styles.carSide}>
 					<Image
-						source={{ uri: firstCar.image }}
+						source={{ uri: resolveImage(firstCar.image || firstCar.raw?.imagem_sugerida || '', firstCar.brand, firstCar.name) }}
 						style={styles.carImage}
 					/>
 
-					<Text style={styles.carName}>{firstCar.name}</Text>
+					<Text style={styles.carName}>{firstCar.name || firstCar.modelo || ''}</Text>
 				</View>
 
 				<View style={styles.vsCircle}>
@@ -166,11 +200,11 @@ export default function CompareDetailScreen() {
 
 				<View style={styles.carSide}>
 					<Image
-						source={{ uri: secondCar.image }}
+						source={{ uri: resolveImage(secondCar.image || secondCar.raw?.imagem_sugerida || '', secondCar.brand, secondCar.name) }}
 						style={styles.carImage}
 					/>
 
-					<Text style={styles.carName}>{secondCar.name}</Text>
+					<Text style={styles.carName}>{secondCar.name || secondCar.modelo || ''}</Text>
 				</View>
 			</View>
 
@@ -185,7 +219,7 @@ export default function CompareDetailScreen() {
 					<Text style={styles.summaryTitle}>Resumo inteligente</Text>
 				</View>
 
-				<Text style={styles.summaryText}>{comparisonSummary}</Text>
+				<Text style={styles.summaryText}>{comparisonSummary || (loadingFicha ? 'Gerando comparação...' : 'Resumo não disponível')}</Text>
 			</View>
 
 			{sections.map((section) => {

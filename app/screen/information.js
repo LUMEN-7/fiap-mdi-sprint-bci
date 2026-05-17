@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import {
 	Animated,
 	Dimensions,
@@ -11,31 +11,238 @@ import {
 	View,
 } from 'react-native';
 
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { COLORS, FONT } from '../../style/theme';
-import { getCarModel } from '../data/carModels';
-import { useFavorites } from '../_layout';
-
-import { useLocalSearchParams } from 'expo-router';
+import { getFichaTecnica } from '../../services/llamaApi';
+import { useFavorites, useRecentViews } from '../_layout';
+import { fetchAutoDevVehicleByVin } from '../../services/autoDevApi';
 
 const { height, width } = Dimensions.get('window');
 
 const COLLAPSED_TOP = height * 0.47;
 const EXPANDED_TOP = height * 0.08;
 
+function formatLabel(text) {
+	return text
+		.replace(/_/g, ' ')
+		.replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function formatSectionItems(section) {
+	if (!section) return [];
+
+	const result = [];
+
+	Object.entries(section).forEach(([key, value]) => {
+		if (Array.isArray(value)) {
+			value.forEach((item) => {
+				result.push(`${formatLabel(key)}: ${item}`);
+			});
+		} else {
+			result.push(`${formatLabel(key)}: ${value}`);
+		}
+	});
+
+	return result;
+}
+
 export default function InformationScreen() {
 	const router = useRouter();
+	const params = useLocalSearchParams();
 	const { isFavorite, toggleFavorite } = useFavorites();
+	const { addRecentView } = useRecentViews();
+
+	const id = String(params.id || '');
+	const brand = String(params.brand || '');
+	const name = String(params.name || '');
+	const image = String(params.image || '');
+	const photoGalleryParam = params.photoGallery ? String(params.photoGallery) : '';
+
+	const [imageUrl, setImageUrl] = useState(
+		image && image !== 'Não disponível' ? image : ''
+	);
+	const [photoGallery, setPhotoGallery] = useState([]);
+	const [userSelectedImage, setUserSelectedImage] = useState(false);
+
+	const currentCarId = id;
+	const isCurrentCarFavorite = isFavorite(currentCarId);
 
 	const [expanded, setExpanded] = useState(false);
 	const [openSection, setOpenSection] = useState(null);
+	const [loadingFicha, setLoadingFicha] = useState(false);
+	const [showFullDescription, setShowFullDescription] = useState(false);
 
-	const { id, brand, name, image } = useLocalSearchParams();
-	const modelData = getCarModel(id);
-	const currentCarId = String(id || modelData.id);
-	const isCurrentCarFavorite = isFavorite(currentCarId);
+	const [modelData, setModelData] = useState({
+		specs: [],
+		sections: [],
+		raw: null,
+	});
+
+	async function loadFicha() {
+		const marca = brand.trim();
+		const modelo = name.trim();
+
+		if (!marca || !modelo) return;
+
+		setLoadingFicha(true);
+
+		try {
+			const ficha = await getFichaTecnica(marca, modelo);
+
+			if (
+				ficha?.imagem_sugerida &&
+				ficha.imagem_sugerida !== 'Não disponível' &&
+				String(ficha.imagem_sugerida).startsWith('http')
+			) {
+				setImageUrl(String(ficha.imagem_sugerida).trim());
+			}
+
+			setModelData({
+				specs: [
+					{
+						icon: 'engine',
+						label: 'Motor',
+						value: ficha?.resumo_rapido?.motor || 'N/D',
+					},
+					{
+						icon: 'horse',
+						label: 'Potência',
+						value: ficha?.resumo_rapido?.potencia || 'N/D',
+					},
+					{
+						icon: 'shape-outline',
+						label: 'Tipo',
+						value: ficha?.resumo_rapido?.tipo || 'N/D',
+					},
+					{
+						icon: 'gas-station',
+						label: 'Consumo',
+						value: ficha?.resumo_rapido?.consumo || 'N/D',
+					},
+				],
+
+				sections: [
+					{
+						id: 'performance',
+						title: 'Performance',
+						items: formatSectionItems(ficha?.performance),
+					},
+					{
+						id: 'consumo',
+						title: 'Consumo',
+						items: formatSectionItems(ficha?.consumo),
+					},
+					{
+						id: 'seguranca',
+						title: 'Segurança',
+						items: formatSectionItems(ficha?.seguranca),
+					},
+					{
+						id: 'tecnologia',
+						title: 'Tecnologia',
+						items: formatSectionItems(ficha?.tecnologia),
+					},
+					{
+						id: 'conforto',
+						title: 'Conforto',
+						items: formatSectionItems(ficha?.conforto),
+					},
+				],
+
+				raw: ficha,
+			});
+
+			setShowFullDescription(false);
+		} catch (err) {
+			console.warn('Erro ao carregar ficha:', err.message || err);
+		} finally {
+			setLoadingFicha(false);
+		}
+	}
+
+	useEffect(() => {
+		// parse photoGallery param if provided (stringified JSON)
+		if (photoGalleryParam) {
+			try {
+				const parsed = JSON.parse(photoGalleryParam);
+				if (Array.isArray(parsed) && parsed.length > 0) {
+					// Normalize and dedupe while preserving original URLs (remove query/hash for uniqueness)
+					const seen = new Set();
+					const uniqueGallery = [];
+					for (const rawUrl of parsed.map((u) => String(u || '').trim()).filter(Boolean)) {
+						let canonical;
+						try {
+							const tmp = new URL(rawUrl);
+							canonical = `${tmp.origin}${tmp.pathname}`;
+						} catch (e) {
+							canonical = rawUrl.split(/[?#]/)[0];
+						}
+						if (seen.has(canonical)) continue;
+						seen.add(canonical);
+						uniqueGallery.push(rawUrl);
+					}
+					setPhotoGallery(uniqueGallery);
+					if (!userSelectedImage && uniqueGallery.length > 0) {
+						setImageUrl(uniqueGallery[0]);
+					}
+				}
+			} catch (e) {
+				// ignore parse errors
+			}
+		}
+
+		// If we didn't receive a gallery but we have a VIN, attempt to fetch photos
+		async function ensureGalleryFromVin() {
+			if ((!photoGalleryParam || photoGallery.length === 0) && params.vin) {
+				try {
+					const vin = String(params.vin || '').trim();
+					if (vin) {
+						const { retailPhotos } = await fetchAutoDevVehicleByVin(vin);
+						// Normalize/dedupe retailPhotos similarly
+						const seen = new Set();
+						const uniqueGallery = [];
+						for (const rawUrl of (retailPhotos || []).map((u) => String(u || '').trim()).filter(Boolean)) {
+							let canonical;
+							try {
+								const tmp = new URL(rawUrl);
+								canonical = `${tmp.origin}${tmp.pathname}`;
+							} catch (e) {
+								canonical = rawUrl.split(/[?#]/)[0];
+							}
+							if (seen.has(canonical)) continue;
+							seen.add(canonical);
+							uniqueGallery.push(rawUrl);
+						}
+						if (uniqueGallery.length > 0) {
+							setPhotoGallery(uniqueGallery);
+							if (!userSelectedImage) {
+								setImageUrl(uniqueGallery[0]);
+							}
+						}
+					}
+				} catch (e) {
+					// ignore
+				}
+			}
+		}
+
+		ensureGalleryFromVin();
+		loadFicha();
+	}, [brand, name]);
+
+	useEffect(() => {
+		if (!id || !brand || !name) return;
+
+		addRecentView({
+			id,
+			brand,
+			name,
+			image: imageUrl,
+		});
+	}, [id, brand, name, imageUrl]);
+
 
 	const translateY = useRef(new Animated.Value(COLLAPSED_TOP)).current;
 
@@ -95,10 +302,23 @@ export default function InformationScreen() {
 		}).start();
 	}
 
-	function toggleSection(id) {
-		setOpenSection((current) => (current === id ? null : id));
+	function toggleSection(sectionId) {
+		setOpenSection((current) =>
+			current === sectionId ? null : sectionId
+		);
 	}
 
+	function toggleDescription() {
+		setShowFullDescription((current) => !current);
+	}
+
+	const shortDescription =
+		modelData.raw?.resumo ||
+		'Este veículo combina presença, tecnologia e proposta clara para uso urbano e rodoviário.';
+
+	const fullDescription =
+		modelData.raw?.descricao_detalhada ||
+		'Desempenho, presença e tecnologia se encontram em um modelo projetado para ir além da comparação.';
 
 	return (
 		<View style={styles.container}>
@@ -116,7 +336,18 @@ export default function InformationScreen() {
 
 				<TouchableOpacity
 					style={styles.iconButton}
-					onPress={() => toggleFavorite(currentCarId)}
+					onPress={() =>
+						toggleFavorite({
+							id: currentCarId,
+							brand,
+							name,
+							image: imageUrl,
+							photoGallery,
+							engine: modelData.raw?.resumo_rapido?.motor || 'N/D',
+							power: modelData.raw?.resumo_rapido?.potencia || 'N/D',
+							type: modelData.raw?.resumo_rapido?.tipo || 'N/D',
+						})
+					}
 				>
 					<Ionicons
 						name={isCurrentCarFavorite ? 'star' : 'star-outline'}
@@ -126,10 +357,21 @@ export default function InformationScreen() {
 				</TouchableOpacity>
 			</View>
 
-			<Image
-				source={{ uri: image }}
-				style={styles.carImage}
-			/>
+			{imageUrl ? (
+				<Image
+					source={{ uri: imageUrl }}
+					style={styles.carImage}
+					resizeMode="contain"
+				/>
+			) : (
+				<View style={styles.imageFallback}>
+					<Ionicons
+						name="car-sport-outline"
+						size={90}
+						color={COLORS.primary}
+					/>
+				</View>
+			)}
 
 			<Animated.View
 				style={[
@@ -139,10 +381,7 @@ export default function InformationScreen() {
 					},
 				]}
 			>
-				<View
-					style={styles.dragArea}
-					{...panResponder.panHandlers}
-				>
+				<View style={styles.dragArea} {...panResponder.panHandlers}>
 					<View style={styles.handle} />
 				</View>
 
@@ -154,15 +393,56 @@ export default function InformationScreen() {
 					<Text style={styles.brand}>{brand}</Text>
 					<Text style={styles.title}>{name}</Text>
 
-					<Text style={styles.description}>
-						Desempenho, presença e tecnologia se encontram em um modelo
-						projetado para ir além da comparação.
-						<Text style={styles.readMore}> Leia mais</Text>
-					</Text>
+					{photoGallery && photoGallery.length > 0 ? (
+						<ScrollView
+							horizontal
+							showsHorizontalScrollIndicator={false}
+							style={styles.thumbnailRow}
+							contentContainerStyle={{ gap: 10 }}
+						>
+							{photoGallery.map((url, idx) => (
+								<TouchableOpacity
+									key={String(url) + idx}
+										onPress={() => {
+											setImageUrl(url);
+											setUserSelectedImage(true);
+										}}
+								>
+									<Image
+										source={{ uri: url }}
+										style={styles.thumbnail}
+										resizeMode="cover"
+									/>
+								</TouchableOpacity>
+							))}
+						</ScrollView>
+					) : null}
+
+					<View style={styles.descriptionBlock}>
+						<Text style={styles.description}>{shortDescription}</Text>
+
+						{showFullDescription ? (
+							<Text style={styles.descriptionLong}>
+								{fullDescription}
+							</Text>
+						) : null}
+
+						<TouchableOpacity onPress={toggleDescription}>
+							<Text style={styles.readMore}>
+								{showFullDescription ? 'Mostrar menos' : 'Leia mais'}
+							</Text>
+						</TouchableOpacity>
+					</View>
+
+					{loadingFicha ? (
+						<Text style={styles.loadingText}>
+							Carregando ficha técnica...
+						</Text>
+					) : null}
 
 					<View style={styles.specsRow}>
 						{modelData.specs.map((item) => (
-							<View key={item.id} style={styles.specItem}>
+							<View key={item.label} style={styles.specItem}>
 								<View style={styles.specIcon}>
 									<MaterialCommunityIcons
 										name={item.icon}
@@ -171,20 +451,15 @@ export default function InformationScreen() {
 									/>
 								</View>
 
-								<Text style={styles.specLabel}>
-									{item.label}
-								</Text>
+								<Text style={styles.specLabel}>{item.label}</Text>
 
-								<Text style={styles.specValue}>
-									{item.value}
-								</Text>
+								<Text style={styles.specValue}>{item.value}</Text>
 							</View>
 						))}
 					</View>
 
 					{!expanded ? (
 						<View style={styles.dragInfo}>
-
 							<Ionicons
 								name="chevron-up-outline"
 								size={26}
@@ -228,18 +503,36 @@ export default function InformationScreen() {
 
 										{isOpen ? (
 											<View style={styles.sectionContent}>
-												{section.items.map((item) => (
-													<View
-														key={item}
-														style={styles.sectionItem}
-													>
-														<View style={styles.bullet} />
+												{section.items.length > 0 ? (
+													section.items.map(
+														(item, index) => (
+															<View
+																key={index}
+																style={
+																	styles.sectionItem
+																}
+															>
+																<View
+																	style={
+																		styles.bullet
+																	}
+																/>
 
-														<Text style={styles.sectionText}>
-															{item}
-														</Text>
-													</View>
-												))}
+																<Text
+																	style={
+																		styles.sectionText
+																	}
+																>
+																	{item}
+																</Text>
+															</View>
+														)
+													)
+												) : (
+													<Text style={styles.sectionText}>
+														Não disponível
+													</Text>
+												)}
 											</View>
 										) : null}
 									</View>
@@ -252,10 +545,10 @@ export default function InformationScreen() {
 									router.push({
 										pathname: '/tab/compare',
 										params: {
-											firstCarId: String(id),
-											firstCarBrand: String(brand),
-											firstCarName: String(name),
-											firstCarImage: String(image),
+											firstCarId: id,
+											firstCarBrand: brand,
+											firstCarName: name,
+											firstCarImage: imageUrl,
 										},
 									});
 								}}
@@ -285,7 +578,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		marginBottom: 24,
 		paddingTop: 48,
-		paddingHorizontal: 24
+		paddingHorizontal: 24,
 	},
 
 	iconButton: {
@@ -299,11 +592,20 @@ const styles = StyleSheet.create({
 
 	carImage: {
 		position: 'absolute',
+		top: height * 0.12,
+		alignSelf: 'center',
+		width: width * 0.95,
+		height: height * 0.32,
+	},
+
+	imageFallback: {
+		position: 'absolute',
 		top: height * 0.16,
 		alignSelf: 'center',
 		width: width * 0.95,
 		height: height * 0.32,
-		resizeMode: 'contain',
+		alignItems: 'center',
+		justifyContent: 'center',
 	},
 
 	sheet: {
@@ -360,10 +662,31 @@ const styles = StyleSheet.create({
 		maxWidth: 330,
 	},
 
+	descriptionBlock: {
+		marginTop: 6,
+	},
+
+	descriptionLong: {
+		fontFamily: FONT.body,
+		color: COLORS.lightNeutral,
+		opacity: 0.72,
+		lineHeight: 19,
+		marginTop: 10,
+		maxWidth: 330,
+	},
+
 	readMore: {
 		fontFamily: FONT.bodyBold,
 		color: COLORS.lightNeutral,
 		opacity: 1,
+		marginTop: 8,
+	},
+
+	loadingText: {
+		fontFamily: FONT.bodyBold,
+		color: COLORS.secondary,
+		fontSize: 12,
+		marginTop: 14,
 	},
 
 	specsRow: {
@@ -393,6 +716,7 @@ const styles = StyleSheet.create({
 		opacity: 0.65,
 		fontSize: 10,
 		textTransform: 'uppercase',
+		textAlign: 'center',
 	},
 
 	specValue: {
@@ -481,5 +805,19 @@ const styles = StyleSheet.create({
 		color: COLORS.primary,
 		textTransform: 'uppercase',
 		fontSize: 18,
+	},
+
+	thumbnailRow: {
+		marginTop: 12,
+		marginBottom: 8,
+		paddingLeft: 2,
+	},
+
+	thumbnail: {
+		width: 110,
+		height: 66,
+		borderRadius: 8,
+		borderWidth: 1,
+		borderColor: 'rgba(255,255,255,0.12)',
 	},
 });

@@ -19,43 +19,50 @@ const { width, height } = Dimensions.get('window');
 const cars = [
 	{
 		id: '1',
-		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/bronco1.png',
-		widthRatio: 1.25,
-		heightRatio: 0.55,
-		rightRatio: -0.42,
-		
+		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/carros/2021_ford_bronco.png',
+		widthRatio: 1.4,
+		heightRatio: 0.52,
+		rightRatio: -0.50,
 	},
+
 	{
 		id: '2',
 		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/mustang.png',
-		widthRatio: 1.22,
-		heightRatio: 0.48,
-		rightRatio: -0.45,
-		
+		widthRatio: 1.2,
+		heightRatio: 0.52,
+		rightRatio: -0.40,
 	},
+
 	{
 		id: '3',
-		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/carro.png',
-		widthRatio: 1.22,
-		heightRatio: 0.50,
-		rightRatio: -0.42,
-		
+		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/carros/2025_ford_bronco_sport.png',
+		widthRatio: 1.4,
+		heightRatio: 0.52,
+		rightRatio: -0.50,
 	},
+
 	{
 		id: '4',
-		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/expedtion.png',
-		widthRatio: 1.22,
+		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/carros/2026_ford_expedition.png',
+		widthRatio: 1.4,
 		heightRatio: 0.52,
-		rightRatio: -0.38,
-		
+		rightRatio: -0.50,
 	},
+
 	{
 		id: '5',
-		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/bronco2.png',
-		widthRatio: 1.18,
-		heightRatio: 0.55,
-		rightRatio: -0.40,
-		
+		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/carros/2026_ford_explorer.png',
+		widthRatio: 1.4,
+		heightRatio: 0.52,
+		rightRatio: -0.50,
+	},
+
+	{
+		id: '6',
+		image: 'https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/carros/2026_ford_mustang_mach.png',
+		widthRatio: 1.3,
+		heightRatio: 0.52,
+		rightRatio: -0.45,
 	},
 ];
 
@@ -208,7 +215,6 @@ const styles = StyleSheet.create({
 	hero: {
 		flex: 1,
 		justifyContent: 'flex-end',
-		overflow: 'hidden',
 	},
 
 	carImage: {
