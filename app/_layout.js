@@ -13,10 +13,15 @@ const FavoritesContext = createContext(null);
 const RecentViewsContext = createContext(null);
 const SESSION_STORAGE_KEY = 'userSession';
 const USERS_STORAGE_KEY = 'users';
-const FAVORITES_STORAGE_KEY = 'favoriteCarIds';
-const FAVORITE_CARS_STORAGE_KEY = 'favoriteCarRecords';
-const FAVORITE_COMPARISONS_STORAGE_KEY = 'favoriteComparisons';
-const RECENT_VIEWS_STORAGE_KEY = 'recentViewedCars';
+const FAVORITES_STORAGE_BASE = 'favoriteCarIds';
+const FAVORITE_CARS_STORAGE_BASE = 'favoriteCarRecords';
+const FAVORITE_COMPARISONS_STORAGE_BASE = 'favoriteComparisons';
+const RECENT_VIEWS_STORAGE_BASE = 'recentViewedCars';
+
+function makeUserKey(base, email) {
+	const id = String((email || 'global')).trim().toLowerCase();
+	return `${base}:${id}`;
+}
 
 function normalizeEmail(email) {
 	return String(email || '').trim().toLowerCase();
@@ -289,14 +294,22 @@ function FavoritesProvider({ children }) {
 	const [favoriteComparisons, setFavoriteComparisons] = useState([]);
 	const [isFavoritesLoading, setIsFavoritesLoading] = useState(true);
 
+	const { currentUser } = useAuth();
+
+
 	useEffect(() => {
 		const loadFavorites = async () => {
+			setIsFavoritesLoading(true);
 			try {
-				const favoritesRaw = await AsyncStorage.getItem(FAVORITES_STORAGE_KEY);
-				const favoriteCarsRaw = await AsyncStorage.getItem(FAVORITE_CARS_STORAGE_KEY);
+				const baseKey = makeUserKey(FAVORITES_STORAGE_BASE, currentUser?.email);
+				const baseCarsKey = makeUserKey(FAVORITE_CARS_STORAGE_BASE, currentUser?.email);
+				const baseComparisonsKey = makeUserKey(FAVORITE_COMPARISONS_STORAGE_BASE, currentUser?.email);
+
+				const favoritesRaw = await AsyncStorage.getItem(baseKey);
+				const favoriteCarsRaw = await AsyncStorage.getItem(baseCarsKey);
 				const parsedFavorites = favoritesRaw ? JSON.parse(favoritesRaw) : [];
 				const parsedFavoriteCars = favoriteCarsRaw ? JSON.parse(favoriteCarsRaw) : [];
-				const comparisonsRaw = await AsyncStorage.getItem(FAVORITE_COMPARISONS_STORAGE_KEY);
+				const comparisonsRaw = await AsyncStorage.getItem(baseComparisonsKey);
 				const parsedComparisons = comparisonsRaw ? JSON.parse(comparisonsRaw) : [];
 
 				if (Array.isArray(parsedFavorites)) {
@@ -339,37 +352,31 @@ function FavoritesProvider({ children }) {
 		};
 
 		loadFavorites();
-	}, []);
+	}, [currentUser?.email]);
 
 	const updateFavorites = (updater) => {
+		const key = makeUserKey(FAVORITES_STORAGE_BASE, currentUser?.email);
 		setFavoriteIds((currentFavorites) => {
 			const nextFavorites = updater(currentFavorites);
-			void AsyncStorage.setItem(
-				FAVORITES_STORAGE_KEY,
-				JSON.stringify(nextFavorites)
-			);
+			void AsyncStorage.setItem(key, JSON.stringify(nextFavorites));
 			return nextFavorites;
 		});
 	};
 
 	const updateFavoriteCars = (updater) => {
+		const key = makeUserKey(FAVORITE_CARS_STORAGE_BASE, currentUser?.email);
 		setFavoriteCars((currentFavoriteCars) => {
 			const nextFavoriteCars = updater(currentFavoriteCars);
-			void AsyncStorage.setItem(
-				FAVORITE_CARS_STORAGE_KEY,
-				JSON.stringify(nextFavoriteCars)
-			);
+			void AsyncStorage.setItem(key, JSON.stringify(nextFavoriteCars));
 			return nextFavoriteCars;
 		});
 	};
 
 	const updateFavoriteComparisons = (updater) => {
+		const key = makeUserKey(FAVORITE_COMPARISONS_STORAGE_BASE, currentUser?.email);
 		setFavoriteComparisons((currentComparisons) => {
 			const nextComparisons = updater(currentComparisons);
-			void AsyncStorage.setItem(
-				FAVORITE_COMPARISONS_STORAGE_KEY,
-				JSON.stringify(nextComparisons)
-			);
+			void AsyncStorage.setItem(key, JSON.stringify(nextComparisons));
 			return nextComparisons;
 		});
 	};
@@ -531,10 +538,14 @@ function RecentViewsProvider({ children }) {
 	const [recentViews, setRecentViews] = useState([]);
 	const [isRecentViewsLoading, setIsRecentViewsLoading] = useState(true);
 
+	const { currentUser } = useAuth();
+
 	useEffect(() => {
 		const loadRecentViews = async () => {
+			setIsRecentViewsLoading(true);
 			try {
-				const recentRaw = await AsyncStorage.getItem(RECENT_VIEWS_STORAGE_KEY);
+				const key = makeUserKey(RECENT_VIEWS_STORAGE_BASE, currentUser?.email);
+				const recentRaw = await AsyncStorage.getItem(key);
 				const parsedRecent = recentRaw ? JSON.parse(recentRaw) : [];
 
 				if (Array.isArray(parsedRecent)) {
@@ -550,7 +561,7 @@ function RecentViewsProvider({ children }) {
 		};
 
 		loadRecentViews();
-	}, []);
+	}, [currentUser?.email]);
 
 	const addRecentView = (car) => {
 		if (!car?.id) return;
@@ -569,10 +580,8 @@ function RecentViewsProvider({ children }) {
 				...currentViews.filter((item) => String(item.id) !== normalizedCar.id),
 			].slice(0, 10);
 
-			void AsyncStorage.setItem(
-				RECENT_VIEWS_STORAGE_KEY,
-				JSON.stringify(nextViews)
-			);
+			const key = makeUserKey(RECENT_VIEWS_STORAGE_BASE, currentUser?.email);
+			void AsyncStorage.setItem(key, JSON.stringify(nextViews));
 
 			return nextViews;
 		});
@@ -580,7 +589,8 @@ function RecentViewsProvider({ children }) {
 
 	const clearRecentViews = () => {
 		setRecentViews([]);
-		void AsyncStorage.removeItem(RECENT_VIEWS_STORAGE_KEY);
+		const key = makeUserKey(RECENT_VIEWS_STORAGE_BASE, currentUser?.email);
+		void AsyncStorage.removeItem(key);
 	};
 
 	const value = useMemo(

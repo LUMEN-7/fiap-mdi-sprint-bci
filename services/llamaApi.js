@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-const GROQ_API_KEY = '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';
+const GROQ_API_KEY = process.env.EXPO_PUBLIC_GROQ_API_KEY || '';
 
 function extractJson(text) {
 	const cleaned = text
