@@ -13,7 +13,7 @@ Plataforma mobile de inteligência competitiva desenvolvida para auxiliar equipe
 ---
 
 ![Status](https://img.shields.io/badge/STATUS-EM%20DESENVOLVIMENTO-0562D2?style=for-the-badge&labelColor=00142E)
-![Version](https://img.shields.io/badge/VERSION-1.0.0-0562D2?style=for-the-badge&labelColor=00142E)
+![Version](https://img.shields.io/badge/VERSION-0.0.1-0562D2?style=for-the-badge&labelColor=00142E)
 ![Platform](https://img.shields.io/badge/PLATFORM-ANDROID%20%7C%20IOS-0562D2?style=for-the-badge&labelColor=00142E)
 
 ---
@@ -84,6 +84,8 @@ llamaApi.js
 ```txt
 autoDevApi.js
 ```
+
+
 
 ---
 
