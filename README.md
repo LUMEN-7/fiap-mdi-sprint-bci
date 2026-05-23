@@ -301,6 +301,221 @@ Conheça o design base da nossa aplicação!
 ---
 
 # Estrutura do Projeto
+## Stack Escolhida
+
+### Plataforma
+
+O projeto foi desenvolvido utilizando **JavaScript / Node.js**, escolha definida pela compatibilidade com toda a base já adotada pela equipe e pelo ecossistema utilizado no desenvolvimento.
+
+A presença de arquivos como `package.json` e `index.js` reforça essa decisão, permitindo gerenciamento simples de dependências, scripts de execução e integração com bibliotecas externas.
+
+---
+
+### Frontend Mobile e Navegação
+
+Para a camada mobile, utilizamos **React Native com Expo**, com estrutura de rotas baseada em arquivos através do **Expo Router**.
+
+A organização por pasta `app/` com `_layout.js` permite:
+
+- navegação estruturada entre telas;
+- separação clara entre fluxos autenticados e não autenticados;
+- melhor manutenção da aplicação;
+- escalabilidade para inclusão de novas rotas no futuro.
+
+Essa abordagem torna o roteamento previsível, modular e alinhado às boas práticas modernas do ecossistema Expo.
+
+---
+
+### Justificativa da Escolha
+
+A escolha por uma stack totalmente baseada em JavaScript foi estratégica, principalmente por:
+
+- reduzir fricção entre frontend e integrações externas;
+- acelerar o desenvolvimento com uma linguagem única em toda a aplicação;
+- facilitar manutenção e onboarding do time;
+- aproveitar o ecossistema consolidado de **React Native**, **Expo** e **Node.js**;
+- permitir integração simples com APIs externas já utilizadas no projeto.
+
+---
+
+# Estrutura do Projeto
+
+## Organização por Domínio
+
+A aplicação foi estruturada separando responsabilidades por contexto e funcionalidade.
+
+### `app/`
+Responsável pelas telas e roteamento da aplicação.
+
+Contém divisões como:
+
+- `auth/` → autenticação (login, cadastro, edição de perfil)
+- `screen/` → telas funcionais do sistema
+- `tabs/` → navegação principal da aplicação
+
+Cada tela possui seu próprio arquivo, tornando o projeto mais organizado e fácil de manter.
+
+---
+
+### `services/`
+Centraliza toda comunicação com APIs externas.
+
+Principais integrações:
+
+- `autoDevApi.js`
+- `llamaApi.js`
+
+Essa separação evita lógica de rede dentro das telas e melhora a reutilização de código.
+
+---
+
+### `assets/`
+Armazena recursos estáticos como:
+
+- imagens
+- ícones
+- logos
+- arquivos visuais da interface
+
+---
+
+### `theme.js`
+Arquivo responsável pela centralização do tema global da aplicação.
+
+Define:
+
+- cores
+- tipografia
+- tamanhos
+- estilos reutilizáveis
+
+Isso garante consistência visual em toda a interface.
+
+---
+
+### Arquivos de entrada
+
+#### `index.js`
+Responsável pelo bootstrap inicial da aplicação.
+
+#### `app.json`
+Contém configurações gerais do Expo como:
+
+- nome do app
+- slug
+- versão
+- splash screen
+- configurações Android/iOS
+
+---
+
+# Integrações Realizadas
+
+## Llama API (IA)
+
+A integração com IA foi implementada através do arquivo `llamaApi.js`.
+
+Responsabilidades:
+
+- realizar chamadas HTTP para o serviço de IA;
+- autenticação via chave de acesso;
+- envio e formatação de payloads;
+- tratamento da resposta recebida.
+
+A IA é utilizada principalmente para:
+
+- interpretar pesquisas em linguagem natural;
+- extrair marca, modelo e versão;
+- auxiliar na geração estruturada de fichas técnicas.
+
+---
+
+## AutoDev API
+
+A integração com a AutoDev foi centralizada em `autoDevApi.js`.
+
+Responsável por:
+
+- consulta por VIN;
+- busca de imagens dos veículos;
+- obtenção de dados técnicos;
+- normalização dos retornos recebidos pela API.
+
+Essa integração alimenta diretamente as telas de detalhes e comparação de veículos.
+
+---
+
+## Configuração Mobile (Expo)
+
+O `app.json` também concentra integrações relacionadas ao ambiente mobile, como:
+
+- configuração de build Android e iOS;
+- splash screen;
+- identidade visual do app;
+- compatibilidade com Expo Go para testes.
+
+---
+
+# Decisões de Arquitetura
+
+## Single Responsibility Principle
+
+Cada camada possui uma responsabilidade específica:
+
+- **Telas:** renderização da interface
+- **Services:** comunicação com APIs
+- **Theme:** identidade visual
+- **Contexts:** gerenciamento de estado global
+
+Essa separação reduz acoplamento e facilita manutenção.
+
+---
+
+## Roteamento Baseado em Arquivos
+
+A adoção do `Expo Router` com `_layout.js` oferece:
+
+- estrutura previsível;
+- escalabilidade;
+- melhor organização entre fluxos de navegação.
+
+---
+
+## Theming Centralizado
+
+Com `theme.js`, qualquer alteração visual global pode ser feita de forma centralizada, sem necessidade de editar múltiplas telas individualmente.
+
+Isso melhora:
+
+- padronização visual
+- reaproveitamento de estilos
+- produtividade do time
+
+---
+
+## Arquitetura Orientada a Serviços
+
+Cada integração externa foi isolada em um arquivo específico dentro de `services`.
+
+Essa abordagem facilita:
+
+- manutenção
+- testes unitários
+- criação de mocks
+- substituição futura de provedores externos sem impacto direto na UI
+
+---
+
+## Escalabilidade
+
+A estrutura atual permite expansão futura com facilidade, incluindo:
+
+- novos módulos e telas;
+- novas integrações externas;
+- cache local;
+- gerenciamento global de estado com Context API ou Redux;
+- persistência de dados local;
+- melhorias futuras de performance.
 
 ```txt
 app/
