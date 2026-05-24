@@ -368,8 +368,6 @@ A escolha por uma stack totalmente baseada em JavaScript foi estratégica, princ
 
 ---
 
-# Estrutura do Projeto
-
 ## Organização por Domínio
 
 A aplicação foi estruturada separando responsabilidades por contexto e funcionalidade.
