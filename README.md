@@ -225,52 +225,6 @@ home.js
 
 ---
 
-## UI/UX e Design System
-- Fontes customizadas via Expo Fonts
-- Sistema centralizado de cores
-- Tokens visuais reutilizáveis
-- Interface responsiva
-
-### Arquivos relacionados
-```txt
-theme.js
-```
-
----
-
-## Integração com APIs Externas
-- Integração com Groq/Llama
-- Integração com Auto.dev
-- Requisições HTTP assíncronas
-- Tratamento de erros
-- Parsing automático de JSON
-
-### Arquivos relacionados
-```txt
-llamaApi.js
-autoDevApi.js
-```
-
----
-
-# Inteligência Artificial
-
-O sistema utiliza IA para:
-
-- interpretar pesquisas do usuário
-- identificar veículos automaticamente
-- converter buscas em VINs válidos
-- encontrar veículos compatíveis
-- alimentar serviços externos de imagens e dados automotivos
-
-Fluxo:
-
-```txt
-Usuário → Interface → IA (Llama/Groq) → VIN → Auto.dev API → Imagens e Dados
-```
-
----
-
 # Preview
 
 <p align="start">
