@@ -12,6 +12,14 @@ Plataforma mobile de inteligência competitiva desenvolvida para auxiliar equipe
 
 ---
 
+# DEMO VIDEO
+
+<a href="https://youtu.be/s_j47s3FI5M?si=72B6TcQZrCsCgGW6">
+  <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/C%C3%B3pia%20de%20FORD%20-%20Apresenta%C3%A7%C3%A3o.jpg" alt="Watch Demo" width="450"/>
+</a>
+
+---
+
 ![Status](https://img.shields.io/badge/STATUS-EM%20DESENVOLVIMENTO-0562D2?style=for-the-badge&labelColor=00142E)
 ![Version](https://img.shields.io/badge/VERSION-0.0.1-0562D2?style=for-the-badge&labelColor=00142E)
 ![Platform](https://img.shields.io/badge/PLATFORM-ANDROID%20%7C%20IOS-0562D2?style=for-the-badge&labelColor=00142E)
