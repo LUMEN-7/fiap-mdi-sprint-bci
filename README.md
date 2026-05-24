@@ -604,17 +604,75 @@ npx expo start
 
 ---
 
-# Roadmap
+# Roadmap do Projeto
 
-- [x] Design inicial no Figma
-- [x] Implemntação do layout em React Native
-- [x] Integração com o Llama via Groq para dados das Fichas técnicas
-- [x] Integração com API Auto Dev para Imagens dos modelos
-- [x] Sistema de comparação e análise da IA entre dois modelos
-- [x] Sistema de anotações e salvos
-- [ ] Adicionar informações de ambos os carros na comparação
-- [ ] Integração com IA própria
-- [ ] Implementação de referências, notificações, verificação e biometria
+### Fase 1 — Planejamento e Design
+
+- [x] Pesquisa inicial sobre o desafio de negócio proposto pela Ford
+- [x] Definição do escopo funcional da solução
+- [x] Estruturação da identidade visual do projeto
+- [x] Criação dos wireframes e protótipos no Figma
+- [x] Definição do fluxo de navegação entre telas
+- [x] Definição da arquitetura inicial da aplicação
+
+---
+
+### Fase 2 — Desenvolvimento Frontend
+
+- [x] Implementação do layout em React Native com Expo
+- [x] Estruturação das rotas com Expo Router
+- [x] Desenvolvimento da tela de login
+- [x] Desenvolvimento da tela de cadastro
+- [x] Desenvolvimento da tela de busca de veículos
+- [x] Desenvolvimento da tela de detalhes do veículo
+- [x] Desenvolvimento da tela de comparação
+- [x] Desenvolvimento da área de perfil do usuário
+- [x] Implementação da tela de salvos
+- [x] Implementação do histórico de últimos vistos
+
+---
+
+### Fase 3 — Integrações e Dados
+
+- [x] Integração com Llama via Groq para interpretação de busca em linguagem natural
+- [x] Geração de fichas técnicas estruturadas com IA
+- [x] Integração com Auto.dev API para carregamento de imagens dos veículos
+- [x] Integração com consulta por VIN
+- [x] Exibição de informações técnicas detalhadas por veículo
+
+---
+
+### Fase 4 — Inteligência Competitiva
+
+- [x] Sistema de comparação entre dois modelos
+- [x] Exibição lado a lado das especificações técnicas
+- [x] Inclusão de dados completos de ambos os veículos na comparação
+- [x] Estrutura para análise comparativa inteligente entre modelos
+- [ ] Destaque automático dos diferenciais competitivos gerado por IA
+- [ ] Geração automática de insights estratégicos para apoio ao marketing
+
+---
+
+### Fase 5 — Personalização e Experiência do Usuário
+
+- [x] Sistema de favoritos / veículos salvos
+- [x] Persistência local com AsyncStorage
+- [x] Histórico de navegação por veículos visualizados
+- [ ] Sistema de anotações por veículo
+- [ ] Organização de comparações salvas por usuário
+
+---
+
+### Próximas Evoluções
+
+- [ ] Integração com IA própria especializada em análise automotiva
+- [ ] Sistema de referências das fontes consultadas
+- [ ] Notificações inteligentes
+- [ ] Alertas personalizados com base em veículos monitorados
+- [ ] Sistema de autenticação com biometria
+- [ ] Verificação avançada de usuário
+- [ ] Dashboard com insights comparativos
+- [ ] Painel com tendências de mercado e benchmarking competitivo
 
 ---
 
