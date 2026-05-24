@@ -18,6 +18,28 @@ Plataforma mobile de inteligência competitiva desenvolvida para auxiliar equipe
 
 ---
 
+# Sobre o Desafio escolhido
+
+Optamos pelo **Desafio 01 – Inteligência Competitiva Automotiva** por enxergarmos nele uma oportunidade de resolver um problema real e estratégico dentro do mercado automotivo: a análise comparativa entre veículos concorrentes de forma rápida, organizada e confiável.
+
+Atualmente, compreender como os concorrentes se posicionam em relação a preço, motorização, tecnologia e pacotes de equipamentos exige consulta a múltiplas fontes e análise manual de um grande volume de informações. Esse processo pode ser demorado, descentralizado e pouco padronizado.
+
+Pensando nisso, desenvolvemos o **BCI – Beyond Compare Intelligence**, uma plataforma criada para centralizar essas informações e transformar dados técnicos em inteligência competitiva aplicada ao negócio.
+
+Nossa solução permite:
+
+- pesquisar veículos por texto ou VIN;
+- visualizar fichas técnicas padronizadas;
+- comparar modelos lado a lado;
+- identificar diferenciais competitivos entre veículos Ford e concorrentes;
+- apoiar análises mais estratégicas para marketing e posicionamento de produto.
+
+A escolha por esse desafio aconteceu porque ele conecta diretamente **tecnologia, dados e estratégia de negócio**, permitindo desenvolver uma solução com aplicação prática e alto valor para a Ford.
+
+Com o BCI, buscamos tornar o processo de análise competitiva mais eficiente, intuitivo e acessível, ajudando equipes internas a tomarem decisões com mais agilidade e embasamento.
+
+---
+
 # Sobre o Projeto
 
 O **BCI - Beyond Compare Intelligence** é uma aplicação mobile construída com React Native e Expo, focada em pesquisa automotiva inteligente.
