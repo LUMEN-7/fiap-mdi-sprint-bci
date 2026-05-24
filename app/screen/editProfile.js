@@ -198,7 +198,7 @@ export default function EditProfileScreen() {
 							disabled={saving}
 						>
 							<Text style={styles.primaryButtonText}>
-								{saving ? 'Salvando...' : 'Salvar alteracoes'}
+								{saving ? 'Salvando...' : 'Salvar alterações'}
 							</Text>
 						</TouchableOpacity>
 					</View>
