@@ -12,7 +12,7 @@ Plataforma mobile de inteligência competitiva desenvolvida para auxiliar equipe
 
 ---
 
-# DEMO VIDEO
+# VÍDEO DE DEMONSTRAÇÃO
 
 <a href="https://youtu.be/s_j47s3FI5M?si=72B6TcQZrCsCgGW6">
   <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/C%C3%B3pia%20de%20FORD%20-%20Apresenta%C3%A7%C3%A3o.jpg" alt="Watch Demo" width="450"/>
