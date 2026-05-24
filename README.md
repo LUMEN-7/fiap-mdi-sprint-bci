@@ -9,6 +9,11 @@
 Plataforma mobile de inteligência competitiva desenvolvida para auxiliar equipes estratégicas na análise, comparação e pesquisa de veículos automotivos através de IA e APIs especializadas.
 </b>
 </p>
+---
+
+![Status](https://img.shields.io/badge/STATUS-EM%20DESENVOLVIMENTO-0562D2?style=for-the-badge&labelColor=00142E)
+![Version](https://img.shields.io/badge/VERSION-0.0.1-0562D2?style=for-the-badge&labelColor=00142E)
+![Platform](https://img.shields.io/badge/PLATFORM-ANDROID%20%7C%20IOS-0562D2?style=for-the-badge&labelColor=00142E)
 
 ---
 
@@ -17,12 +22,6 @@ Plataforma mobile de inteligência competitiva desenvolvida para auxiliar equipe
 <a href="https://youtu.be/s_j47s3FI5M?si=72B6TcQZrCsCgGW6">
   <img src="https://raw.githubusercontent.com/LUMEN-7/images/refs/heads/main/C%C3%B3pia%20de%20FORD%20-%20Apresenta%C3%A7%C3%A3o.jpg" alt="Watch Demo" width="450"/>
 </a>
-
----
-
-![Status](https://img.shields.io/badge/STATUS-EM%20DESENVOLVIMENTO-0562D2?style=for-the-badge&labelColor=00142E)
-![Version](https://img.shields.io/badge/VERSION-0.0.1-0562D2?style=for-the-badge&labelColor=00142E)
-![Platform](https://img.shields.io/badge/PLATFORM-ANDROID%20%7C%20IOS-0562D2?style=for-the-badge&labelColor=00142E)
 
 ---
 
@@ -465,9 +464,7 @@ A integração com a AutoDev foi centralizada em `autoDevApi.js`.
 Responsável por:
 
 - consulta por VIN;
-- busca de imagens dos veículos;
-- obtenção de dados técnicos;
-- normalização dos retornos recebidos pela API.
+- busca de imagens dos veículos.
 
 Essa integração alimenta diretamente as telas de detalhes e comparação de veículos.
 
