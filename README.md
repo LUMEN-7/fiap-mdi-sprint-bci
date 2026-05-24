@@ -9,7 +9,6 @@
 Plataforma mobile de inteligência competitiva desenvolvida para auxiliar equipes estratégicas na análise, comparação e pesquisa de veículos automotivos através de IA e APIs especializadas.
 </b>
 </p>
----
 
 ![Status](https://img.shields.io/badge/STATUS-EM%20DESENVOLVIMENTO-0562D2?style=for-the-badge&labelColor=00142E)
 ![Version](https://img.shields.io/badge/VERSION-0.0.1-0562D2?style=for-the-badge&labelColor=00142E)
