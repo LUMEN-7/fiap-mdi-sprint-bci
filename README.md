@@ -576,9 +576,16 @@ EXPO_PUBLIC_AUTO_DEV_API_KEY=SUA_API_KEY
 
 ## Execução
 
+> [!IMPORTANT]
+> Embora o aplicativo tenha sido desenvolvido com **Expo SDK 54** para permitir testes via **Expo Go**, devido à instabilidade apresentada pela plataforma, recomendamos utilizar o **emulador do Android Studio** para testes locais, garantindo maior compatibilidade e estabilidade.
+
 ```bash
 npx expo start
 ```
+Pressione **A** no terminal para abrir a aplicação no emulador Android ou escaneie o **QR Code** com o aplicativo **Expo Go** no celular.
+
+> [!TIP]
+> Caso esteja utilizando o emulador, certifique-se de que um dispositivo virtual já esteja em execução antes de abrir a aplicação.
 
 ---
 
